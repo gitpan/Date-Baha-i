@@ -1,8 +1,8 @@
 Changes
-i.pm
-Makefile.PL
 MANIFEST
+Makefile.PL
 README
+lib/Date/Baha/i.pm
 t/as_string.t
 t/from_bahai.t
 t/misc.t

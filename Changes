@@ -150,3 +150,10 @@ Revision history for Perl extension Date::Baha::i.
 
 0.13.1  Fri Jul 11 2003
     - Excised the unnecessary =head1 ABSTRACT section.
+
+0.14  Fri Jul 18 2003
+    - Replaced Lingua::Num2Word (which mysteriously prints absolutely
+      nothing under my Mac OS X Perl 5.6.1) with Lingua::EN::Numbers
+      (which works perfectly).
+    - Tweezed documentation.
+    - Moved i.pm under lib/Date/Baha/.

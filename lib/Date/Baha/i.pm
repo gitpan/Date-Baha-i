@@ -2,7 +2,7 @@ package Date::Baha::i;
 
 # Package declarations {{{
 use strict;
-use vars '$VERSION'; $VERSION = '0.13.1';
+use vars '$VERSION'; $VERSION = '0.14';
 use base 'Exporter';
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -26,7 +26,7 @@ use Date::Calc qw(
     leap_year
 );
 use Lingua::EN::Numbers::Ordinate;
-use Lingua::Num2Word;
+use Lingua::EN::Numbers qw(American);
 # }}}
 
 # Set constants {{{
@@ -212,7 +212,7 @@ sub from_bahai {  # {{{
 }  # }}}
 
 sub as_string {  # {{{
-    # XXX With Lingua::Num2Word, naively assume that we only care
+    # XXX With Lingua::EN::Numbers, naively assume that we only care
     # about English.
     my ($date_hash, %args) = @_;
 
@@ -237,6 +237,7 @@ sub as_string {  # {{{
         # long alpha-numeric
         # XXX Fugly hacking begins.
         my $month_string = $is_ayyam_i_ha ? '%s%s' : 'the %s month %s';
+        my $n = Lingua::EN::Numbers->new($date_hash->{year});
 
         $date .= sprintf
             "%s week day %s, %s day %s of $month_string, year %s (%d), %s year %s of the %s vahid %s of the %s kull-i-shay",
@@ -244,7 +245,7 @@ sub as_string {  # {{{
             ordinate ($date_hash->{day}), $date_hash->{day_name},
             ($is_ayyam_i_ha ? '' : ordinate ($date_hash->{month})),
             $date_hash->{month_name},
-            lc (Lingua::Num2Word::cardinal ('en', $date_hash->{year})),
+            lc ($n->get_string),
             $date_hash->{year},
             ordinate ($date_hash->{cycle_year}),
             $date_hash->{year_name},
@@ -275,11 +276,12 @@ sub as_string {  # {{{
     else {
         # long alpha
         my $month_string = $is_ayyam_i_ha ? '%s' : 'month %s';
+        my $n = Lingua::EN::Numbers->new($date_hash->{year});
 
         $date .= sprintf
             "week day %s, day %s of $month_string, year %s of year %s of the vahid %s of the %s kull-i-shay",
             @$date_hash{qw(dow_name day_name month_name)},
-            lc (Lingua::Num2Word::cardinal ('en', $date_hash->{year})),
+            lc ($n->get_string),
             @$date_hash{qw(year_name cycle_name)},
             ordinate ($date_hash->{kull_i_shay});
     }
@@ -941,28 +943,13 @@ the month, the second is the day, and the third is the (optional)
 number of days observed.  These dates are saved in standard 
 (non-Baha'i) format.
 
-=head1 DEPENDENCIES
+=head1 SEE ALSO
 
 L<Date::Calc>
 
 L<Lingua::EN::Numbers::Ordinate>
 
-L<Lingua::Num2Word>
-
-=head1 TO DO
-
-Optionally output unicode.
-
-Base the date computation on the time of day (the Baha'i day begins at 
-Sunset) and the location longitude/latitude.
-
-Overload localtime and gmtime, just to be cool?
-
-=head1 DEDICATION
-
-Hi Kirsten  : )
-
-=head1 SEE ALSO
+L<Lingua::EN::Numbers>
 
 C<http://www.projectpluto.com/calendar.htm#bahai> (Very interesting)
 
@@ -974,9 +961,22 @@ C<http://www.bahaindex.com/calendar.html>
 
 C<http://www.moonwise.co.uk/year/159bahai.htm>
 
+=head1 TO DO
+
+Output unicode.
+
+Base the date computation on the time of day (the Baha'i day begins at 
+Sunset) and the location longitude/latitude.
+
+Overload localtime and gmtime, just to be cool?
+
+=head1 DEDICATION
+
+Hi Kirsten  : )
+
 =head1 AUTHOR
 
-Gene Boggs E<lt>cpan@ology.netE<gt>
+Gene Boggs E<lt>gene@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
