@@ -4,7 +4,11 @@ use Data::Dumper;
 
 # test context {{{
 my $test_time = '1048204800';  # 2003/3/21 00:00:00
-my @test_greg = (2003, 3, 21);
+my %test_greg = (
+    year  => 2003,
+    month => 3,
+    day   => 21
+);
 my $test_date = {
     'kull_i_shay' => 1,
     'month' => 1,
@@ -34,36 +38,31 @@ my %date = date (
     use_gmtime => 1,
 );
 delete $date{timezone};
-is_deeply \%date, $test_date,
-    "Baha'i date in array context";
+is_deeply \%date, $test_date, "timestamp in array context";
 
-%date = greg_to_bahai (
-    @test_greg,
+%date = date (
+    %test_greg,
     use_gmtime => 1,
 );
 delete $date{timezone};
-is_deeply \%date, $test_date,
-    "Gregorian to Baha'i date in array context";
+is_deeply \%date, $test_date, "ymd date in array context";
 
 my $date = date (
     timestamp => $test_time,
     use_gmtime => 1,
 );
-is $date, $test_string, 
-    "Baha'i date in scalar context";
+is $date, $test_string, "timestamp in scalar context";
 
-$date = greg_to_bahai (
-    @test_greg,
+$date = date (
+    %test_greg,
     use_gmtime => 1,
 );
-is $date, $test_string, 
-    "Gregorian to Baha'i date in scalar context";
+is $date, $test_string, "ymd in scalar context";
 
 # as_string () functionality
 #
 $date = as_string (\%date);
-is $date, $test_string,
-    'long alpha string';
+is $date, $test_string, 'long alpha string';
 $date = as_string (\%date,
     size    => 0,
     numeric => 0,
@@ -83,8 +82,7 @@ $date = as_string (\%date,
     numeric => 1,
     alpha   => 0,
 );
-is $date, '7, 1/1/160',
-    'short numeric string';
+is $date, '7, 1/1/160', 'short numeric string';
 $date = as_string (\%date,
     size    => 1,
     numeric => 1,
@@ -102,9 +100,8 @@ is $date, 'Istiqlal (7), Baha (1) of Baha (1), year 160, Jad (8) of Baha (9)',
 
 # next holy day
 #
-$date = next_holy_day (@test_greg);
-is_deeply $date, { Ridvan => [4, 21] },
-    'next holy day';
+$date = next_holy_day (@test_greg{qw(year month day)});
+is_deeply $date, { Ridvan => [4, 21] }, 'next holy day';
 
 # Name lists.
 #

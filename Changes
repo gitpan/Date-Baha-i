@@ -79,8 +79,14 @@ Revision history for Perl extension Date::Baha::i.
     - Added a reminder to integrate with DateTime to the TO DO
       section.
 
-0.09
+0.09  Tue Apr 29 2003 (9th day of Ridvan!)
     - Fixed documentation.
     - Replaced the seemingly broken Date::Calc::Date_to_Time()
       function with Time::Local. (See the XXX comment preceding the
       greg_to_bahai() function.)
+
+0.10  Tue Apr 29 2003 (Still the 9th day of Ridvan!)
+    - Ack.  I'm a dork.  I don't even need the greg_to_bahai()
+      function!
+    - In the same purge, I got rid of the stupid conversion to epoch
+      seconds and back.

@@ -1,4 +1,4 @@
-Date/Baha/i version 0.09
+Date/Baha/i version 0.10
 ========================
 
 INSTALLATION
@@ -11,8 +11,6 @@ To install this module type the following:
    make install
 
 DEPENDENCIES
-
-Time::Local
 
 Date::Calc
 
