@@ -34,7 +34,14 @@ Revision history for Perl extension Date::Baha::i.
     - Gave _foo type names to "private" functions.
     - Cleaned up documentation.
 
-0.04.2  Thu Mar  6 2003
+0.04.3  Fri Mar  7 2003
     - Oof!  I forgot to test install the package!  Fixed the name of
       a private function call.
-    - Cleaned up documentation again...
+    - Cleaned up documentation.
+
+0.05  Fri Mar  7 2003
+    - Cleaned up and enhanced documentation.
+    - Returned friendly strings with the date names and ordinals,
+      given scalar context for the date () and greg_to_bahai ()
+      functions.
+    - Updated test suite accordingly.

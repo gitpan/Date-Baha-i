@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.04.3';
+use vars qw($VERSION); $VERSION = '0.05';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -22,6 +22,7 @@ use Date::Calc qw(
     Delta_Days
     Timezone
 );
+use Lingua::EN::Numbers::Ordinate;
 
 # Set constants {{{
 use constant FACTOR => 19;
@@ -261,9 +262,30 @@ sub _build_date {
     # ($D_y,$D_m,$D_d, $Dh,$Dm,$Ds, $dst) = Timezone ();
     $date{timezone} = (Timezone ())[3];
 
-    return %date;
+    return wantarray ? %date : _as_string (%date);
 }
 
+# kull_i_shay'th kull-i-shay,
+# cycle'th vahid (cycle_name),
+# cycle_year'th year of the vahid, 
+# year'th year (year_name),
+# month'th month of the year (month_name),
+# day'th day of the month (day_name),
+# dow'th day of the week (dow_name),
+# with time zone offset of timezone
+sub _as_string {
+    my %date = @_;
+    my $date =
+        ordinate ($date{kull_i_shay}) . ' kull-i-shay, ' .
+        ordinate ($date{cycle})       . " vahid ($date{cycle_name}), " .
+        ordinate ($date{cycle_year})  . ' year of the vahid, ' .
+        ordinate ($date{year})        . " year ($date{year_name}), " .
+        ordinate ($date{month})       . " month of the year ($date{month_name}), " .
+        ordinate ($date{day})         . " day of the month ($date{day_name}), " .
+        ordinate ($date{dow})         . " day of the week ($date{dow_name}), " .
+        "with time zone offset of $date{timezone} hours";
+    return $date;
+}
 # }}}
 
 1;
@@ -278,8 +300,10 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
   use Date::Baha'i;
 
   %bahai_date = date ();
+  $bahai_date = date ();
 
   %bahai_date = greg_to_bahai ($year, $month, $day);
+  $bahai_date = greg_to_bahai ($year, $month, $day);
 
   @ret = cycles ();
   @ret = years ();
@@ -290,7 +314,7 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
 
 =head1 ABSTRACT
 
-This package outputs a (numeric and named) Baha'i date from a standard system time stamp.
+This package outputs a (numeric and named) Baha'i date from a standard system time stamp or year, month, day triple.
 
 =head1 DESCRIPTION
 
@@ -443,9 +467,9 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 
   %bahai_date = date ([time])
 
-This function returns a hash of the Baha'i date names and numbers from a user provided system time() stamp.
+This function returns a hash of the Baha'i date names and numbers from a system or user provided time () stamp.
 
-The hash returned has these keys:
+In a scalar context, this function returns a string sentence with the numeric and named Baha'i date.  In an array context, it returns a hash with the following keys:
 
   kull_i_shay
   cycle
@@ -466,6 +490,8 @@ The hash returned has these keys:
   %bahai_date = greg_to_bahai ($year, $month, $day);
 
 Compute the Baha'i date from a Gregorian year, month, day triple.
+
+In a scalar context, this function returns a string sentence with the numeric and named Baha'i date.  In an array context, it returns the date () hash (described above).
 
 =head2 cycles
 
@@ -507,15 +533,21 @@ Return the holy days as a hash where the keys are the holy day names and the val
 
 L<Date::Calc>
 
+L<Lingua::EN::Numbers::Ordinate>
+
 =head1 TODO
 
 Overload localtime() and gmtime().
 
-Convert between Gregorian dates/Unix timestamps and Baha'i dates.
+Also, add the current holy day to the date, if the day is on one.
+
+Convert to Gregorian dates and Unix time stamps from Baha'i dates.
 
 Base the date computation on the time of day (the Baha'i day begins at Sunset).
 
 Output unicode.
+
+Add a next_holy_day () function?
 
 =head1 DEDICATION
 

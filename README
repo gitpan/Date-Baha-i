@@ -1,5 +1,5 @@
-Date/Baha/i version 0.04.3
-==========================
+Date/Baha/i version 0.05
+========================
 
 INSTALLATION
 
@@ -13,6 +13,8 @@ To install this module type the following:
 DEPENDENCIES
 
 L<Date::Calc>
+
+L<Lingua::EN::Numbers::Ordinate>
 
 COPYRIGHT AND LICENCE
 
