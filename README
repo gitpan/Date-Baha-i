@@ -1,4 +1,4 @@
-Date/Baha/i version 0.13
+Date/Baha/i distribution
 ========================
 
 INSTALLATION
@@ -11,6 +11,8 @@ To install this module type the following:
    make install
 
 DEPENDENCIES
+
+Test::More
 
 Date::Calc
 

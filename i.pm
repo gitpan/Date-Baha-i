@@ -2,7 +2,7 @@ package Date::Baha::i;
 
 # Package declarations {{{
 use strict;
-use vars '$VERSION'; $VERSION = '0.13';
+use vars '$VERSION'; $VERSION = '0.13.1';
 use base 'Exporter';
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -489,10 +489,6 @@ Date::Baha::i - Convert to and from Baha'i dates.
   @days_of_the_week = days_of_the_week ();
   %holy_days = holy_days ();
 
-=head1 ABSTRACT
-
-This package converts between Baha'i and standard dates.
-
 =head1 DESCRIPTION
 
 This package renders the Baha'i date from two standard date formats -
@@ -585,7 +581,7 @@ nineteen days each with four Intercalary Days (five in a leap year),
 called Ayyam-i-Ha which Baha'u'llah specified should precede the 
 nineteenth month.
 
-The days of the Baha'i week are;
+The days of the Baha'i week are:
 
   1. Jalal    - Glory (Saturday)
   2. Jamal    - Beauty (Sunday)

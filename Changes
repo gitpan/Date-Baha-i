@@ -147,3 +147,6 @@ Revision history for Perl extension Date::Baha::i.
     - Removed the date returned by the next_holy_day function.  Also,
       I made the function only operate in scalar context.
     - Fixed documentation.
+
+0.13.1  Fri Jul 11 2003
+    - Excised the unnecessary =head1 ABSTRACT section.
