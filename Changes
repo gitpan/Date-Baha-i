@@ -56,3 +56,9 @@ Revision history for Perl extension Date::Baha::i.
 
 0.06.1  Sat Mar 22 2003
     - Cleaned up documentation.
+
+0.062  Sat Mar 22 2003
+    - Oof!  Fixed the syntax of a function call to which I had 
+      changed to interface.
+    - Deleted the timezone key from the returned date_hash in the
+      test suite.

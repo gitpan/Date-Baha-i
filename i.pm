@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.06.1';
+use vars qw($VERSION); $VERSION = '0.06.2';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -188,7 +188,10 @@ sub greg_to_bahai {
     my ($y, $m, $d, %args) = @_;
     # It would seem that Date::Calc::Date_to_Time (and Time_to_Date)
     # is broken wrt the day.  "+ 1"?  WTF?
-    return date (Date_to_Time ($y, $m, $d + 1, 0, 0, 0), %args);
+    return date (
+        timestamp => Date_to_Time ($y, $m, $d + 1, 0, 0, 0),
+        %args
+    );
 }
 # }}}
 

@@ -6,7 +6,6 @@ my $test_time = 1048296711;  # 2003/3/21 - Naw Ruz  : )
 my @test_greg = (2003, 3, 21);
 my $test_date = {
     'kull_i_shay' => 1,
-    'timezone' => -6,
     'month' => 1,
     'dow_name' => 'Istiqlal',
     'cycle_name' => 'Baha',
@@ -24,13 +23,17 @@ my $test_string = "week day Istiqlal, day Baha of month Baha, year one-hundred s
 
 BEGIN { use_ok("Date::Baha::i") };
 
+# NOTE: The TZ functionality not tested due to local variation.
+
 # Check the date output.
 #
 my %date = date (timestamp => $test_time);
+delete $date{timezone};
 is_deeply \%date, $test_date,
     "Baha'i date in array context";
 
 %date = greg_to_bahai (@test_greg);
+delete $date{timezone};
 is_deeply \%date, $test_date,
     "Gregorian to Baha'i date in array context";
 
@@ -43,7 +46,6 @@ is $date, $test_string,
     "Gregorian to Baha'i date in scalar context";
 
 # as_string () functionality
-# NOTE: TZ functionality not tested due to local variation.
 #
 $date = as_string (\%date);
 is $date, $test_string,
