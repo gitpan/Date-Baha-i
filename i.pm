@@ -4,7 +4,7 @@ use strict;
 #use base qw(Exporter);
 #use vars qw($@EXPORT @EXPORT_OK);
 #@EXPORT = @EXPORT_OK = qw(date);
-use vars qw($VERSION); $VERSION = '0.03';
+use vars qw($VERSION); $VERSION = '0.03.1';
 use Date::Calc qw(
     Add_Delta_Days
     Day_of_Week
@@ -444,7 +444,7 @@ Return the holy days as a hash where the keys are the holy day names and the val
 
 =head1 DEPENDENCIES
 
-None.
+L<Date::Calc>
 
 =head1 TODO
 
@@ -459,6 +459,10 @@ Output unicode.
 =head1 HISTORY
 
 See the Changes file in this distribution.
+
+=head1 DEDICATION
+
+Hi Kirsten  : )
 
 =head1 AUTHOR
 
