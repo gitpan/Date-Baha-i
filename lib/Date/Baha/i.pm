@@ -1,8 +1,15 @@
+# $Id: i.pm,v 1.6 2003/09/28 08:30:48 gene Exp $
+
 package Date::Baha::i;
+
+# The {{{ and }}} things are "editor code fold" markers.  They are
+# merely a convenience for people who don't care to scroll through
+# reams of source, like me.
 
 # Package declarations {{{
 use strict;
-use vars '$VERSION'; $VERSION = '0.15.1';
+use vars qw($VERSION);
+$VERSION = '0.1502';
 use base 'Exporter';
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -30,15 +37,15 @@ use Lingua::EN::Numbers qw(American);
 # }}}
 
 # Set constants {{{
-use constant FACTOR => 19;
-use constant FEBRUARY => 2;
-use constant MARCH => 3;
-use constant SHARAF => 16;
-use constant LAST_START_DAY => 2;   # First day of the fast.
-use constant YEAR_START_DAY => 21;  # Vernal equinox.
-use constant LEAP_START_DAY => 26;  # The intercalary days.
-use constant FIRST_YEAR  => 1844;
-use constant ADJUST_YEAR => 1900;
+use constant FACTOR         =>   19;  # Everything is in groups of 19.
+use constant FEBRUARY       =>    2;
+use constant MARCH          =>    3;
+use constant SHARAF         =>   16;
+use constant LAST_START_DAY =>    2;  # First day of the fast.
+use constant YEAR_START_DAY =>   21;  # Vernal equinox.
+use constant LEAP_START_DAY =>   26;  # The intercalary days.
+use constant FIRST_YEAR     => 1844;
+use constant ADJUST_YEAR    => 1900;
 use constant CYCLE_YEAR => qw(
     Alif
     Ba
@@ -85,8 +92,9 @@ use constant MONTH_DAY => qw(
 );
 
 # NOTE: Trailing 0's are stripped, resulting in incorrect
-# computations if certain decimals are not quoted.
-#   Month name   => [Number, Start, End],  # Non-leap year day span
+# computations if certain decimals are not quoted...  So I just quote
+# everything.
+#   Month name   => [Number, Start, End],    # Non-leap year day span
 use constant MONTHS => {
     "Baha"       => [ 0,  '3.21',  '4.08'],  # 80,  98
     "Jalal"      => [ 1,  '4.09',  '4.27'],  # 99, 117
@@ -461,7 +469,7 @@ __END__
 
 =head1 NAME
 
-Date::Baha::i - Convert to and from Baha'i dates.
+Date::Baha::i - Convert to and from Baha'i dates
 
 =head1 SYNOPSIS
 
@@ -961,9 +969,11 @@ number of days observed.  These dates are saved in standard
 
 L<Date::Calc>
 
-L<Lingua::EN::Numbers::Ordinate>
+L<Time::Zone>
 
 L<Lingua::EN::Numbers>
+
+L<Lingua::EN::Numbers::Ordinate>
 
 C<http://www.projectpluto.com/calendar.htm#bahai> (Very interesting)
 
@@ -973,11 +983,9 @@ C<http://www.planetbahai.org/articles/2003/ar032103a.html>
 
 C<http://www.bahaindex.com/calendar.html>
 
-C<http://www.moonwise.co.uk/year/159bahai.htm>
+C<http://www.moonwise.co.uk/year/160bahai.htm>
 
 =head1 TO DO
-
-Output unicode.
 
 Base the date computation on the time of day (the Baha'i day begins at 
 Sunset) and the location longitude/latitude.

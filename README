@@ -18,9 +18,9 @@ Date::Calc
 
 Time::Zone
 
-Lingua::EN::Numbers::Ordinate
-
 Lingua::EN::Numbers
+
+Lingua::EN::Numbers::Ordinate
 
 COPYRIGHT AND LICENCE
 

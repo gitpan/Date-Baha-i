@@ -1,0 +1,15 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Date-Baha-i
+version:      0.1502
+version_from: lib/Date/Baha/i.pm
+installdirs:  site
+requires:
+    Date::Calc:                    0
+    Lingua::EN::Numbers:           0
+    Lingua::EN::Numbers::Ordinate: 0
+    Test::More:                    0
+    Time::Zone:                    0
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.16

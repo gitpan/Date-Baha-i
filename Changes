@@ -167,3 +167,7 @@ Revision history for Perl extension Date::Baha::i.
 0.15.1  Thu Jul 24 2003
     - Whoops.  Added Time::Zone to the Makefile.PL (and README
       dependencies).
+
+0.1502  Sun Sep 27 2003
+    - Updated POD.
+    - Put the version on it's own line.
