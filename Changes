@@ -171,3 +171,9 @@ Revision history for Perl extension Date::Baha::i.
 0.1502  Sun Sep 27 2003
     - Updated POD.
     - Put the version on it's own line.
+
+0.16  First day of Ayyam-i-ha year 160
+    - Got rid of the annoying "pre-open-paren space after sub" call
+      syntax.
+    - Made next_holy_day() work without arguments and also return the
+      (Gregorian) date of the holy day.
