@@ -135,3 +135,15 @@ Revision history for Perl extension Date::Baha::i.
 
 0.12.3  Wed May 21 2003
     - Fixed, pruned and augmented documentation.
+
+0.13  Sun May 25 2003
+    - Deprecated (i.e. removed) the sub date.
+    - Fixed a sematic error in the "short alpha" clause of the 
+      as_string function.
+    - Removed the dow number from the "short numeric" as_string
+      output.
+    - Changed the [month, day] HOLY_DAYS value to ['month.day'].
+    - Fixed the _invert_holy_days function accordingly.
+    - Removed the date returned by the next_holy_day function.  Also,
+      I made the function only operate in scalar context.
+    - Fixed documentation.

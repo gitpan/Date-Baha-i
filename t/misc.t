@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 9;
+use Test::More tests => 8;
 
 # test context {{{
 my %test_date = (
@@ -12,16 +12,11 @@ my %test_date = (
 BEGIN { use_ok 'Date::Baha::i' };
 
 # Next holy day functionality.
-#
-my %date = next_holy_day (@test_date{qw(year month day)});
-is_deeply \%date, { 'First Day of Ridvan' => [4, 21] },
-    'next holy day in array context';
 my $date = next_holy_day (@test_date{qw(year month day)});
-is_deeply $date, 'First Day of Ridvan: 4.21',
+is_deeply $date, 'First Day of Ridvan',
     'next holy day in scalar context';
 
 # Name lists.
-#
 my @ret = cycles ();
 is @ret, 19, 'cycle list';
 @ret = years ();

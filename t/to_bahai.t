@@ -20,7 +20,7 @@ is_deeply \%date, {
     day_name    => 'Baha',
     dow         => 7,
     dow_name    => 'Istiqlal',
-    holy_day    => { 'Naw Ruz' => [3, 21] },
+    holy_day    => 'Naw Ruz',
     kull_i_shay => 1,
     month       => 1,
     month_name  => 'Baha',

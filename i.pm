@@ -2,13 +2,12 @@ package Date::Baha::i;
 
 # Package declarations {{{
 use strict;
-use vars qw($VERSION); $VERSION = '0.12.3';
-use base qw(Exporter);
+use vars '$VERSION'; $VERSION = '0.13';
+use base 'Exporter';
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
     as_string
     cycles
-    date
     days
     days_of_the_week
     from_bahai
@@ -120,23 +119,24 @@ use constant DOW_NAME => qw(
     Istijlal
     Istiqlal
 );
+
 use constant HOLY_DAYS => {
-    # Work suspended:
-    "Naw Ruz"                   => [ 3, 21],
-    "First Day of Ridvan"       => [ 4, 21],
-    "Ninth Day of Ridvan"       => [ 4, 29],
-    "Twelfth Day of Ridvan"     => [ 5,  2],
-    "Declaration of the Bab"    => [ 5, 23],
-    "Ascension of Baha'u'llah"  => [ 5, 29],
-    "Martyrdom of the Bab"      => [ 7,  9],
-    "Birth of the Bab"          => [10, 20],
-    "Birth of Baha'u'llah"      => [11, 12],
+    # Work suspended':
+    "Naw Ruz"                   => [ '3.21'],
+    "First Day of Ridvan"       => [ '4.21'],
+    "Ninth Day of Ridvan"       => [ '4.29'],
+    "Twelfth Day of Ridvan"     => [ '5.02'],
+    "Declaration of the Bab"    => [ '5.23'],
+    "Ascension of Baha'u'llah"  => [ '5.29'],
+    "Martyrdom of the Bab"      => [ '7.09'],
+    "Birth of the Bab"          => ['10.20'],
+    "Birth of Baha'u'llah"      => ['11.12'],
     # Work not suspended:
-    "Day of the Covenant"       => [11, 26],
-    "Ascension of 'Abdu'l-Baha" => [11, 28],
-    "Ayyam-i-Ha"                => [ 2, 26,  4],  # 5 days in leap years
-    "The Fast"                  => [ 3,  2, 19],
-    "Days of Ridvan"            => [ 4, 21, 12],
+    "Ayyam-i-Ha"                => [ '2.26',  4],  # 5 days in leap years
+    "The Fast"                  => [ '3.02', 19],
+    "Days of Ridvan"            => [ '4.21', 12],
+    "Day of the Covenant"       => ['11.26'],
+    "Ascension of 'Abdu'l-Baha" => ['11.28'],
 };
 # }}}
 
@@ -149,7 +149,6 @@ sub days_of_the_week { return DOW_NAME }
 sub holy_days { return HOLY_DAYS }
 # }}}
 
-sub date { goto &to_bahai }
 sub to_bahai {  # {{{
     my %args = @_;
     # readability++
@@ -224,6 +223,8 @@ sub as_string {  # {{{
 
     my $date;
 
+    my $is_ayyam_i_ha = $date_hash->{month} == -1 ? 1 : 0;
+
     if (!$args{size} && $args{numeric} && $args{alpha}) {
         # short alpha-numeric
         $date .= sprintf '%s (%d), %s (%d) of %s (%d), year %d, %s (%d) of %s (%d)',
@@ -234,10 +235,15 @@ sub as_string {  # {{{
     }
     elsif ($args{size} && $args{numeric} && $args{alpha}) {
         # long alpha-numeric
-        $date .= sprintf '%s week day %s, %s day %s of the %s month %s, year %s (%d), %s year %s of the %s vahid %s of the %s kull-i-shay',
+        # XXX Fugly hacking begins.
+        my $month_string = $is_ayyam_i_ha ? '%s%s' : 'the %s month %s';
+
+        $date .= sprintf
+            "%s week day %s, %s day %s of $month_string, year %s (%d), %s year %s of the %s vahid %s of the %s kull-i-shay",
             ordinate ($date_hash->{dow}), $date_hash->{dow_name},
             ordinate ($date_hash->{day}), $date_hash->{day_name},
-            ordinate ($date_hash->{month}), $date_hash->{month_name},
+            ($is_ayyam_i_ha ? '' : ordinate ($date_hash->{month})),
+            $date_hash->{month_name},
             lc (Lingua::Num2Word::cardinal ('en', $date_hash->{year})),
             $date_hash->{year},
             ordinate ($date_hash->{cycle_year}),
@@ -248,30 +254,30 @@ sub as_string {  # {{{
     }
     elsif (!$args{size} && $args{numeric}) {
         # short numeric
-        $date .= sprintf '%s, %s/%s/%s',
-            @$date_hash{qw(dow month day year)};
+        $date .= sprintf '%s/%s/%s', @$date_hash{qw(month day year)};
     }
     elsif ($args{size} && $args{numeric}) {
         # long numeric
-        $date .= sprintf '%s day of the week, %s day of the %s month, year %s, %s year of the %s vahid of the %s kull-i-shay',
-            ordinate ($date_hash->{dow}),
-            ordinate ($date_hash->{day}),
-            ordinate ($date_hash->{month}),
-            $date_hash->{year},
-            ordinate ($date_hash->{cycle_year}),
-            ordinate ($date_hash->{cycle}),
+        $date .= sprintf
+            '%s day of the week, %s day of the %s month, year %s, %s year of the %s vahid of the %s kull-i-shay',
+            ordinate ($date_hash->{dow}), ordinate ($date_hash->{day}),
+            ordinate ($date_hash->{month}), $date_hash->{year},
+            ordinate ($date_hash->{cycle_year}), ordinate ($date_hash->{cycle}),
             ordinate ($date_hash->{kull_i_shay});
     }
     elsif (!$args{size} && $args{alpha}) {
         # short alpha
         $date .= sprintf '%s, %s of %s, %s of %s',
             @$date_hash{qw(
-                dow_name month_name day_name year_name cycle_name
+                dow_name day_name month_name year_name cycle_name
             )};
     }
     else {
         # long alpha
-        $date .= sprintf 'week day %s, day %s of month %s, year %s of year %s of the vahid %s of the %s kull-i-shay',
+        my $month_string = $is_ayyam_i_ha ? '%s' : 'month %s';
+
+        $date .= sprintf
+            "week day %s, day %s of $month_string, year %s of year %s of the vahid %s of the %s kull-i-shay",
             @$date_hash{qw(dow_name day_name month_name)},
             lc (Lingua::Num2Word::cardinal ('en', $date_hash->{year})),
             @$date_hash{qw(year_name cycle_name)},
@@ -308,13 +314,12 @@ sub as_string {  # {{{
 sub next_holy_day {  # {{{
     my ($year, $month, $day) = @_;
 
-    # Make the month and day a pseudo real number.
-    my $m_d = "$month.$day";
-
     # Construct our lists of pseudo real number dates.
     my %inverted = _invert_holy_days ($year);
     my @sorted = sort { $a <=> $b } keys %inverted;
 
+    # Make the month and day a pseudo real number.
+    my $m_d = "$month.$day";
     my $holy_date;
 
     # Find the first date greater than the one provided.
@@ -325,12 +330,10 @@ sub next_holy_day {  # {{{
         }
     }
 
-    # If one was not found, just grab the last date in the list.
+    # If one was not found, grab the last date in the list.
     $holy_date = $sorted[-1] unless $holy_date;
 
-    return wantarray
-        ? ( $inverted{$holy_date} => [ split /\./, $holy_date ] )
-        : "$inverted{$holy_date}: $holy_date";
+    return $inverted{$holy_date};
 }  # }}}
 
 # Helper functions {{{
@@ -338,9 +341,12 @@ sub next_holy_day {  # {{{
 sub _setup_date_comparison {  # {{{
     my ($y, $m, $d, $s, $e) = @_;
 
+    # Dates are encoded as decimals.
     my ($start_month, $start_day) = split /\./, $s;
     my ($end_month, $end_day) = split /\./, $e;
 
+    # Slide either the start or end year, given the month we're
+    # looking at.
     my ($start_year, $end_year) = ($y, $y);
     if ($end_month < $start_month) {
         if ($m == $start_month) {
@@ -379,17 +385,11 @@ sub _build_date {  # {{{
     $date{month}++ unless $date{month} == -1;
 
     # Set the year.
-    # NOTE: This, as of yet, cryptic algorithm lifted from Arman
-    # Danesh's "bahaidate".
-    if (($month < MARCH) 
-        ||
+    # Algorithm lifted from Danesh's "bahaidate".
+    $date{year} = ($month < MARCH) ||
         ($month == MARCH && $day < YEAR_START_DAY)
-    ) {
-        $date{year} = $year - FIRST_YEAR;
-    }
-    else {
-        $date{year} = $year - (FIRST_YEAR - 1);
-    }
+        ? $year - FIRST_YEAR
+        : $year - (FIRST_YEAR - 1);
 
     $date{year_name} = (CYCLE_YEAR)[($date{year} - 1) % FACTOR];
     $date{cycle_year} = $date{year} % FACTOR;
@@ -405,11 +405,10 @@ sub _build_date {  # {{{
     # ($D_y,$D_m,$D_d, $Dh,$Dm,$Ds, $dst) = Timezone ();
     $date{timezone} = (Timezone ())[3];
 
-    # Get the holy day!
-    my $m_d = $month .'.'. sprintf ('%02d', $day);
+    # Get the holy day.
     my %inverted = _invert_holy_days ($year);
-    $date{holy_day} = { $inverted{$m_d} => HOLY_DAYS->{$inverted{$m_d}} }
-        if exists $inverted{$m_d};
+    my $m_d = sprintf '%d.%02d', $month, $day;
+    $date{holy_day} = $inverted{$m_d} if exists $inverted{$m_d};
 
     return wantarray ? %date : as_string (\%date, %args);
 }  # }}}
@@ -419,19 +418,21 @@ sub _invert_holy_days {  # {{{
 
     my %inverted;
 
-    while (my ($name, $dates) = each %{ HOLY_DAYS() }) {
-        # Pre-pad the day number with a zero.
-        $inverted{ sprintf '%d.%02d', @$dates[0,1] } = $name;
+    while (my ($name, $date) = each %{ HOLY_DAYS() }) {
+        $inverted{$date->[0]} = $name;
 
         # Does this date contain a day span?
-        if (@$dates == 3) {
+        if (@$date > 1) {
             # Increment the Ayyam-i-Ha day if we are in a leap year.
-            $dates->[2]++ if $name eq 'Ayyam-i-Ha' && leap_year ($year);
+            $date->[1]++ if $name eq 'Ayyam-i-Ha' && leap_year ($year);
 
-            for (1 .. $dates->[2] - 1) {
-                (undef, my $month, my $day) = Add_Delta_Days($year, @$dates[0,1], $_);
+            for (1 .. $date->[1] - 1) {
+                (undef, my $month, my $day) = Add_Delta_Days(
+                    $year, split (/\./, $date->[0]), $_
+                );
+
                 # Pre-pad the day number with a zero.
-                $inverted{ sprintf '%d.%02d', $month, $day} = $name;
+                $inverted{ sprintf '%d.%02d', $month, $day } = $name;
             }
         }
     }
@@ -480,7 +481,6 @@ Date::Baha::i - Convert to and from Baha'i dates.
   );
 
   $holy_day = next_holy_day ($year, $month, $day);
-  %holy_day = next_holy_day ($year, $month, $day);
 
   @cycles = cycles ();
   @years = years ();
@@ -555,8 +555,7 @@ nineteen to create a time period called a "Kull-i-Shay" (literally,
 "all things").  One Kull-i-Shay is therefore 361 years.
 
 Text taken from
-
-L<http://www.planetbahai.org/articles/2003/ar032103a.html>
+C<http://www.planetbahai.org/articles/2003/ar032103a.html>
 
 This calendar was instituted by the Baha'i spiritual leader 
 Baha'u'llah, who stated that it should begin in the Gregorian year 
@@ -578,8 +577,7 @@ calendar, without even the vestige of previously lunar months as in
 the Gregorian Calendar.
 
 Text taken from
-
-L<http://www.moonwise.co.uk/year/159bahai.htm>
+C<http://www.moonwise.co.uk/year/159bahai.htm>
 
 The Baha'i year is based on the solar year of 365 days, five hours and
 some fifty minutes. Each year is divided into nineteen months of 
@@ -738,8 +736,7 @@ who are ill, travelers, the elderly, pregnant women and nursing
 mothers are exempt from the fast.
 
 Text taken from
-
-L<http://www.bahaindex.com/calendar.html>
+C<http://www.bahaindex.com/calendar.html>
 
 =head1 EXPORTED FUNCTIONS
 
@@ -850,10 +847,10 @@ representation.
 Here are some handy examples (newlines added for readability):
 
   short numeric:
-  7, 1/1/159
+  1/1/159
 
   short numeric with TZ:
-  7, 1/1/159, -6
+  1/1/159, -6
 
   long numeric:
   7th day of the week, 1st day of the 1st month, year 159,
@@ -901,16 +898,10 @@ Here are some handy examples (newlines added for readability):
 
 =head2 next_holy_day
 
-  %holy_day = next_holy_day ($year, $month, $day);
   $holy_day = next_holy_day ($year, $month, $day);
 
-This function returns the first holy day after the provided date
-triple as either a hash (in array context) or a string (in scalar 
-context).
-
-In array context, a hash with a single key (the name of the holy day)
-and a two or three element array reference of [month, day, duration]
-as the value.
+This function returns the name of the first holy day after the 
+provided date triple.
 
 =head2 cycles
 
@@ -964,8 +955,6 @@ L<Lingua::Num2Word>
 
 =head1 TO DO
 
-Factor out the fugly _invert_holy_days function.
-
 Optionally output unicode.
 
 Base the date computation on the time of day (the Baha'i day begins at 
@@ -979,15 +968,15 @@ Hi Kirsten  : )
 
 =head1 SEE ALSO
 
-L<http://www.projectpluto.com/calendar.htm#bahai> <= Very interesting
+C<http://www.projectpluto.com/calendar.htm#bahai> (Very interesting)
 
 The following are partially quoted above:
 
-L<http://www.planetbahai.org/articles/2003/ar032103a.html>
+C<http://www.planetbahai.org/articles/2003/ar032103a.html>
 
-L<http://www.bahaindex.com/calendar.html>
+C<http://www.bahaindex.com/calendar.html>
 
-L<http://www.moonwise.co.uk/year/159bahai.htm>
+C<http://www.moonwise.co.uk/year/159bahai.htm>
 
 =head1 AUTHOR
 

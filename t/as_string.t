@@ -55,7 +55,7 @@ $date = as_string ($test_date,
     numeric => 1,
     alpha   => 0,
 );
-is $date, '7, 1/1/160', 'short numeric string';
+is $date, '1/1/160', 'short numeric string';
 $date = as_string ($test_date,
     size    => 1,
     numeric => 1,
