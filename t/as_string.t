@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 15;
+use Test::More tests => 7;
 
 # test context {{{
 my $test_time = '1048204800';  # 2003/3/21 00:00:00
@@ -70,27 +70,3 @@ $date = as_string ($test_date,
 );
 is $date, 'Istiqlal (7), Baha (1) of Baha (1), year 160, Jad (8) of Baha (9)',
     'short alpha-numeric string';
-
-# Next holy day functionality.
-#
-my %holy_day = next_holy_day (@test_greg{qw(year month day)});
-is_deeply \%holy_day, { 'First Day of Ridvan' => [4, 21] },
-    'next holy day in array context';
-my $holy_day = next_holy_day (@test_greg{qw(year month day)});
-is_deeply $holy_day, 'First Day of Ridvan: 4.21',
-    'next holy day in scalar context';
-
-# Name lists.
-#
-my @ret = cycles ();
-is @ret, 19, 'cycle list';
-@ret = years ();
-is @ret, 19, 'years list';
-@ret = months ();
-is @ret, 20, 'months list';
-@ret = days ();
-is @ret, 19, 'day list';
-@ret = days_of_the_week ();
-is @ret, 7, 'days of the week list';
-my $ret = holy_days ();
-is keys %$ret, 14, 'holy day hash';

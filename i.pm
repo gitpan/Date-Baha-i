@@ -2,7 +2,7 @@ package Date::Baha::i;
 
 # Package declarations {{{
 use strict;
-use vars qw($VERSION); $VERSION = '0.12.1';
+use vars qw($VERSION); $VERSION = '0.12.2';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -23,8 +23,6 @@ use Date::Calc qw(
     Add_Delta_Days
     Date_to_Days
     Day_of_Week
-    Day_of_Year
-    Delta_Days
     Timezone
     leap_year
 );
@@ -89,9 +87,8 @@ use constant MONTH_DAY => qw(
 
 # NOTE: Trailing 0's are stripped, resulting in incorrect
 # computations if certain decimals are not quoted.
+#   Month name   => [Number, Start, End],  # Non-leap year day span
 use constant MONTHS => {
-# Month => [Month num, Date span], # Non-leap year day span
-
     "Baha"       => [ 0,  '3.21',  '4.08'],  # 80,  98
     "Jalal"      => [ 1,  '4.09',  '4.27'],  # 99, 117
     "Jamal"      => [ 2,  '4.28',  '5.16'],  #118, 136
@@ -197,9 +194,8 @@ sub from_bahai {  # {{{
     my %args = @_;
 
     # Figure out the year.
-    my $year = $args{month} > SHARAF || $args{month} == -1
-        ? $args{year} + FIRST_YEAR
-        : $args{year} + FIRST_YEAR - 1;
+    my $year = $args{year} + FIRST_YEAR;
+    $year-- unless $args{month} > SHARAF || $args{month} == -1;
 
     # Reset the month number if we are given Ayyam-i-Ha.
     $args{month} = 0 if $args{month} == -1;
