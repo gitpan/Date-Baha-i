@@ -161,4 +161,9 @@ Revision history for Perl extension Date::Baha::i.
 0.15  Thu Jul 24 2003
     - Ack!  Forgot a Lingua::Num2Word under the as_string tz clauses.
     - Added the (superior to the Date::Calc) tz_offset() and tz_name()
-      functions (which made as_string() rock finally).
+      functions (which made as_string() rock finally) from Time::Zone.
+
+
+0.15.1  Thu Jul 24 2003
+    - Whoops.  Added Time::Zone to the Makefile.PL (and README
+      dependencies).

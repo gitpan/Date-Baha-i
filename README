@@ -16,6 +16,8 @@ Test::More
 
 Date::Calc
 
+Time::Zone
+
 Lingua::EN::Numbers::Ordinate
 
 Lingua::EN::Numbers

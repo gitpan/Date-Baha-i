@@ -2,7 +2,7 @@ package Date::Baha::i;
 
 # Package declarations {{{
 use strict;
-use vars '$VERSION'; $VERSION = '0.15';
+use vars '$VERSION'; $VERSION = '0.15.1';
 use base 'Exporter';
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
