@@ -2,7 +2,7 @@ package Date::Baha::i;
 
 # Package declarations {{{
 use strict;
-use vars '$VERSION'; $VERSION = '0.14';
+use vars '$VERSION'; $VERSION = '0.15';
 use base 'Exporter';
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -22,9 +22,9 @@ use Date::Calc qw(
     Add_Delta_Days
     Date_to_Days
     Day_of_Week
-    Timezone
     leap_year
 );
+use Time::Zone;
 use Lingua::EN::Numbers::Ordinate;
 use Lingua::EN::Numbers qw(American);
 # }}}
@@ -287,22 +287,37 @@ sub as_string {  # {{{
     }
 
     if ($args{timezone}) {
-        #long numeric, short alpha: , TZ -6h
-        if (($args{size} && $args{numeric} && !$args{alpha})
-            ||
-            (!$args{size} && !$args{numeric} && $args{alpha})
-        ) {
-            $date .= ", TZ $date_hash->{timezone}h";
+        my $tz = $date_hash->{timezone};
+        my $n = Lingua::EN::Numbers->new($tz);
+        $n = lc $n->get_string;
+        my $name = uc tz_name();
+        my $gmt = 'seconds from GMT';
+
+        $date .= ', ';
+
+        if ($args{size} && $args{numeric} && $args{alpha}) {
+            # long alpha-numeric
+            $date .= "time zone: $name ($tz $gmt)";
         }
-        #long alpha: , with timezone offset of negative six hours
+        elsif (!$args{size} && $args{numeric} && $args{alpha}) {
+            # short alpha-numeric
+            $date .= "$name ($tz)";
+        }
         elsif ($args{size} && $args{alpha}) {
-            $date .= ', with timezone offset of ' .
-                lc (Lingua::Num2Word::cardinal ('en', $date_hash->{timezone})) .
-                ' hours';
+            #long alpha
+            $date .= "time zone: $name ($n $gmt)";
         }
-        #short numeric: , -6
+        elsif (!$args{size} && !$args{numeric} && $args{alpha}) {
+            #short alpha
+            $date .= $name;
+        }
+        elsif ($args{size} && $args{numeric} && !$args{alpha}) {
+            #long numeric
+            $date .= $tz .'s from GMT';
+        }
         else {
-            $date .= ", $date_hash->{timezone}";
+            #short numeric
+            $date .= $tz;
         }
     }
 
@@ -403,9 +418,7 @@ sub _build_date {  # {{{
     # Set the Kull-i-Shay.
     $date{kull_i_shay} = int ($date{cycle} / FACTOR) + 1;
 
-    # Naively assume only the hour item is the TZ offset.
-    # ($D_y,$D_m,$D_d, $Dh,$Dm,$Ds, $dst) = Timezone ();
-    $date{timezone} = (Timezone ())[3];
+    $date{timezone} = tz_local_offset();
 
     # Get the holy day.
     my %inverted = _invert_holy_days ($year);
@@ -500,7 +513,8 @@ date to standard ymd format.
 This package is not a date arithmetic calculator.  It simply takes a 
 standard or Baha'i date and converts it to the reverse representation.
 
-The following passages are excerpts from the SEE ALSO section links:
+The following passages are excerpts from the C<SEE ALSO> section 
+links.
 
 What we usually call the Baha'i calendar is technically called the 
 Badi calendar.  The word "Badi" means "Wonderful" and was the name 
@@ -600,26 +614,26 @@ The names of the months in the Baha'i (Badi) calendar were given by
 the Bab, who drew them from the nineteen names of God invoked in a 
 prayer said during the month of fasting in Shi'ih Islam. They are:
 
-  1.  Baha      - Splendour (21 March - 8 April)
-  2.  Jalal     - Glory (9 April - 27 April)
-  3.  Jamal     - Beauty (28 April - 16 May)
-  4.  'Azamat   - Grandeur (17 May - 4 June)
-  5.  Nur       - Light (5 June - 23 June)
-  6.  Rahmat    - Mercy (24 June - 12 July)
-  7.  Kalimat   - Words (13 July - 31 July)
-  8.  Kamal     - Perfection (1 August - 19 August)
-  9.  Asma'     - Names (20 August - 7 September)
-  10. 'Izzat    - Might (8 September - 26 September)
-  11. Mashiyyat - Will (27 September - 15 October)
-  12. 'Ilm      - Knowledge (16 October - 3 November)
-  13. Qudrat    - Power (4 November - 22 November)
-  14. Qawl      - Speech (23 November - 11 December)
-  15. Masa'il   - Questions (12 December - 30 December)
-  16. Sharaf    - Honour (31 December - 18 January)
-  17. Sultan    - Sovereignty (19 January - 6 February)
-  18. Mulk      - Dominion (7 February - 25 February)
-  * Ayyam-i-Ha  - Days of Ha (26 February - 1 March))
-  19. 'Ala      - Loftiness (2 March - 20 March)
+  1.  Baha       - Splendour (21 March - 8 April)
+  2.  Jalal      - Glory (9 April - 27 April)
+  3.  Jamal      - Beauty (28 April - 16 May)
+  4.  'Azamat    - Grandeur (17 May - 4 June)
+  5.  Nur        - Light (5 June - 23 June)
+  6.  Rahmat     - Mercy (24 June - 12 July)
+  7.  Kalimat    - Words (13 July - 31 July)
+  8.  Kamal      - Perfection (1 August - 19 August)
+  9.  Asma'      - Names (20 August - 7 September)
+  10. 'Izzat     - Might (8 September - 26 September)
+  11. Mashiyyat  - Will (27 September - 15 October)
+  12. 'Ilm       - Knowledge (16 October - 3 November)
+  13. Qudrat     - Power (4 November - 22 November)
+  14. Qawl       - Speech (23 November - 11 December)
+  15. Masa'il    - Questions (12 December - 30 December)
+  16. Sharaf     - Honour (31 December - 18 January)
+  17. Sultan     - Sovereignty (19 January - 6 February)
+  18. Mulk       - Dominion (7 February - 25 February)
+  *   Ayyam-i-Ha - Days of Ha (26 February - 1 March))
+  19. 'Ala       - Loftiness (2 March - 20 March)
 
 Ayyam-i-Ha:
 

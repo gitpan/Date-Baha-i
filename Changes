@@ -157,3 +157,8 @@ Revision history for Perl extension Date::Baha::i.
       (which works perfectly).
     - Tweezed documentation.
     - Moved i.pm under lib/Date/Baha/.
+
+0.15  Thu Jul 24 2003
+    - Ack!  Forgot a Lingua::Num2Word under the as_string tz clauses.
+    - Added the (superior to the Date::Calc) tz_offset() and tz_name()
+      functions (which made as_string() rock finally).
