@@ -25,3 +25,6 @@ Revision history for Perl extension Date::Baha::i.
     - Added a Gregorian to Baha'i date function.
     - Used Exporter.
     - Updated the documentation and test suite, of course.
+
+0.04.1  Thu Mar  6 2003
+    - Fixed incomplete documentation.

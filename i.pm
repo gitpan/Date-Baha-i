@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.04';
+use vars qw($VERSION); $VERSION = '0.04.1';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -275,11 +275,11 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
   %bahai_date = greg_to_bahai ($year, $month, $day);
 
   @ret = cycles ();
-  @ret = day_of_week ();
+  @ret = years ();
+  @ret = months ();
   @ret = days ();
   @ret = days_of_the_week ();
   @ret = holy_days ();
-  @ret = years ();
 
 =head1 ABSTRACT
 
@@ -338,25 +338,25 @@ Each cycle of nineteen years is called a Vahid. Nineteen cycles constitute a per
 
 The names of the years in each cycle are: 
 
-  1.  Alif - The Letter "A"
-  2.  Ba - The letter "B"
-  3.  Ab - Father
-  4.  Dal - The letter "D"
-  5.  Bab - Gate
-  6.  Vav - The letter "V"
-  7.  Abad - Eternity
-  8.  Jad - Generosity
-  9.  Baha - Splendour
-  10. Hubb - Love
+  1.  Alif   - The Letter "A"
+  2.  Ba     - The letter "B"
+  3.  Ab     - Father
+  4.  Dal    - The letter "D"
+  5.  Bab    - Gate
+  6.  Vav    - The letter "V"
+  7.  Abad   - Eternity
+  8.  Jad    - Generosity
+  9.  Baha   - Splendour
+  10. Hubb   - Love
   11. Bahhaj - Delightful
-  12. Javab - Answer
-  13. Ahad - Single
+  12. Javab  - Answer
+  13. Ahad   - Single
   14. Vahhab - Bountiful
-  15. Vidad - Affection
-  16. Badi - Beginning
-  17. Bahi - Luminous
-  18. Abha - Most Luminous
-  19. Vahid - Unity
+  15. Vidad  - Affection
+  16. Badi   - Beginning
+  17. Bahi   - Luminous
+  18. Abha   - Most Luminous
+  19. Vahid  - Unity
 
 There are eleven Holy Days which Baha'is celebrate. On [many] of these days, all work should cease. They are listed in chronological order according to the Baha'i calendar.
 
@@ -436,7 +436,7 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 
   %bahai_date = date ([time])
 
-This function returns a hash of the date names and numbers from a system time() stamp.
+This function returns a hash of the Baha'i date names and numbers from a user provided system time() stamp.
 
 The hash returned has these keys:
 
@@ -458,23 +458,43 @@ The hash returned has these keys:
 
   %bahai_date = greg_to_bahai ($year, $month, $day);
 
+Compute the Baha'i date from a Gregorian year, month, day triple.
+
 =head2 cycles
+
+  @cycles = cycles ();
 
 Return the 19 cycle names as an array.
 
 =head2 years
 
+  @years = years ();
+
 Return the 19 year names as an array.
 
 =head2 months
 
-Return the 19 month names as an array, along with  the intercalary days ("Ayyam-i-Ha") as the last element.
+  @months = months ();
+
+Return the 19 month names as an array, along with the intercalary days ("Ayyam-i-Ha") as the last element.
 
 =head2 days
 
+  @days = days ();
+
 Return the 19 day names as an array.
 
+=head2 days_of_the_week
+
+  @days = days_of_the_week ();
+
+Return the 7 day-of-the-week names as an array.
+
+Return the 
+
 =head2 holy_days
+
+  @days = holy_days ();
 
 Return the holy days as a hash where the keys are the holy day names and the values are array references.  These array references are composed of two or three elements, where the first is the month, the second is the day, and the third is the (optional) number of days observed.  These dates are currently in standard (non-Baha'i) format.
 
