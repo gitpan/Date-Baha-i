@@ -20,3 +20,8 @@ Revision history for Perl extension Date::Baha::i.
 0.03.1  Wed Mar  5 2003
     - Ack!  I'm a retard!  I kept forgetting to add Date::Calc to
       the Makefile.PL dependencies.  *sob*
+
+0.04  Wed Mar  5 2003
+    - Added a Gregorian to Baha'i date function.
+    - Used Exporter.
+    - Updated the documentation and test suite, of course.

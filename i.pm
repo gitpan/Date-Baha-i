@@ -1,12 +1,24 @@
 package Date::Baha::i;
 
 use strict;
-#use base qw(Exporter);
-#use vars qw($@EXPORT @EXPORT_OK);
-#@EXPORT = @EXPORT_OK = qw(date);
-use vars qw($VERSION); $VERSION = '0.03.1';
+use vars qw($VERSION); $VERSION = '0.04';
+use base qw(Exporter);
+use vars qw(@EXPORT @EXPORT_OK);
+@EXPORT = @EXPORT_OK = qw(
+    cycles
+    date
+    day_of_week
+    days
+    days_of_the_week
+    greg_to_bahai
+    holy_days
+    months
+    years
+);
+
 use Date::Calc qw(
     Add_Delta_Days
+    Date_to_Time
     Day_of_Week
     Delta_Days
     Timezone
@@ -18,7 +30,7 @@ use constant MARCH => 3;
 use constant LAST_START_DAY => 2;   # First day of the fast.
 use constant YEAR_START_DAY => 21;  # Spring equinox.
 use constant FEBRUARY => 2;
-use constant LEAP_START_DAY => 25;  # The intercalary days.
+use constant LEAP_START_DAY => 26;  # The intercalary days.
 use constant FIRST_YEAR  => 1844;
 use constant ADJUST_YEAR => 1900;
 use constant CYCLE_YEAR => qw(
@@ -142,18 +154,27 @@ sub date {
             $month, $day, MARCH, LAST_START_DAY, MARCH, YEAR_START_DAY - 1
          ))
     ) { 
-        $bahai_day = delta_month_days (MARCH, 1, $year, $month, $day);
+        $bahai_day = delta_month_days (MARCH, LAST_START_DAY - 1, $year, $month, $day);
         $bahai_month = FACTOR - 1;
     }   
 
     # If we still didn't find a month, it is Ayyam-i-Ha!
     unless ($found) {
-        $bahai_day = delta_month_days (FEBRUARY, LEAP_START_DAY, $year, $month, $day);
+        $bahai_day = delta_month_days (FEBRUARY, LEAP_START_DAY - 1, $year, $month, $day);
         $bahai_month = -1;
     }
 
     # Build the date hash to return.
     return _build_date ($year, $month, $day, $bahai_month, $bahai_day);
+}
+# }}}
+
+# greg_to_bahai function {{{
+sub greg_to_bahai {
+    my ($y, $m, $d) = @_;
+    # It would seem that Date::Calc::Date_to_Time (and Time_to_Date)
+    # is broken wrt the day.  "+ 1"?  WTF?
+    return date (Date_to_Time ($y, $m, $d + 1, 0, 0, 0));
 }
 # }}}
 
@@ -243,11 +264,22 @@ __END__
 
 =head1 NAME
 
-Date::Baha'i - Compute the numeric and named Baha'i date.
+Date::Baha::i - Compute the numeric and named Baha'i date.
 
 =head1 SYNOPSIS
 
-  %bahai_date = Date::Baha'i::date ();
+  use Date::Baha'i;
+
+  %bahai_date = date ();
+
+  %bahai_date = greg_to_bahai ($year, $month, $day);
+
+  @ret = cycles ();
+  @ret = day_of_week ();
+  @ret = days ();
+  @ret = days_of_the_week ();
+  @ret = holy_days ();
+  @ret = years ();
 
 =head1 ABSTRACT
 
@@ -358,7 +390,7 @@ Commemorates the date in 1819 when the Bab was born in Shiraz, Iran
 
 * Birth of Baha'u'llah - 12 November
 
-Commemorates the date in 1817 when Bahá'u'lláh was born in Tihran, Iran
+Commemorates the date in 1817 when Baha'u'llah was born in Tihran, Iran
 
 - Work does not have to cease on these Holy Days:
 
@@ -402,7 +434,7 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 
 =head2 date
 
-  %bahai_date = Date::Baha::i::date ()
+  %bahai_date = date ([time])
 
 This function returns a hash of the date names and numbers from a system time() stamp.
 
@@ -421,6 +453,10 @@ The hash returned has these keys:
   dow
   dow_name
   timezone
+
+=head2 greg_to_bahai
+
+  %bahai_date = greg_to_bahai ($year, $month, $day);
 
 =head2 cycles
 
@@ -450,15 +486,11 @@ L<Date::Calc>
 
 Overload localtime() and gmtime?
 
-Convert between Julian dates/Unix timestamps and Baha'i dates.
+Convert between Gregorian dates/Unix timestamps and Baha'i dates.
 
 Base the date computation on the time of day (the Baha'i day begins at Sunset).
 
 Output unicode.
-
-=head1 HISTORY
-
-See the Changes file in this distribution.
 
 =head1 DEDICATION
 
