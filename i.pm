@@ -2,7 +2,7 @@ package Date::Baha::i;
 
 # Package declarations {{{
 use strict;
-use vars qw($VERSION); $VERSION = '0.12.2';
+use vars qw($VERSION); $VERSION = '0.12.3';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -36,7 +36,7 @@ use constant FEBRUARY => 2;
 use constant MARCH => 3;
 use constant SHARAF => 16;
 use constant LAST_START_DAY => 2;   # First day of the fast.
-use constant YEAR_START_DAY => 21;  # Spring equinox.
+use constant YEAR_START_DAY => 21;  # Vernal equinox.
 use constant LEAP_START_DAY => 26;  # The intercalary days.
 use constant FIRST_YEAR  => 1844;
 use constant ADJUST_YEAR => 1900;
@@ -502,14 +502,103 @@ date to standard ymd format.
 This package is not a date arithmetic calculator.  It simply takes a 
 standard or Baha'i date and converts it to the reverse representation.
 
+The following passages are excerpts from the SEE ALSO section links:
+
+What we usually call the Baha'i calendar is technically called the 
+Badi calendar.  The word "Badi" means "Wonderful" and was the name 
+of several people of importance in Baha'i history, most notably the 
+youth who volunteered to carry a Tablet from Baha'u'llah to 
+Nasiri'd-Din Shah and was upon its delivery tortured and killed.  An 
+alternate translation of the word, used in the calendar itself, is 
+"Beginning".  But regardless of how the calendar came to be called 
+the Badi calendar, it was created by the Bab, and Baha'u'llah 
+specified a few of the details that His Forerunner had not provided.
+
+The number nineteen has a special significance for Baha'is.  It was 
+common in Persian mystical writings to utilize a system of numerical 
+values to convey meanings beyond what mere words could impart.
+Within this system, words are assigned numerical values, and 
+relationships between words can be implied based upon these values. 
+The word "vahid", meaning unity, has the numerical value of nineteen,
+and is often used by the Bab and Baha'u'llah when specifying the 
+quantity nineteen.  So the number nineteen, in addition to being a 
+quantity, also is evocative of the central teaching of the Baha'i 
+Faith, unity.  It forms the basis not only of the calendar, but also 
+was integral to the structure of the Persian Bayan (the Bab's Book of 
+laws); is found in Baha'u'llah's laws concerning dowries, the payment 
+of Huquq'u'llah, certain fines, and various prayers; and is even seen 
+in the history of the Faith, as Baha'u'llah's public declaration of 
+His mission took place nineteen years after the Bab's declaration.
+
+Now we come to the days of the month themselves. As is the case with 
+Jewish and Islamic reckoning, the day begins at sunset, rather than 
+at midnight.  For most of us, this takes a bit of getting used to! 
+It becomes important because certain things happen on specific days. 
+The first day of each Baha'i month is designated as a Feast day.  The 
+Feast is a community gathering that incorporates worship, community 
+business, and socializing.  It is the foundation of Baha'i community 
+life and is primarily administrative in nature.  When Baha'is gather 
+for the Feast of (say) Baha, the first month of the year, you might 
+think that the date on which they should gather is, in the Gregorian 
+calendar, March 21st.  But they may actually hold their Feasts 
+anytime between sunset on March 20th and before sunset on March 21st. 
+That time period is the first day of Baha.  Holy Days are also 
+reckoned in this fashion, as are the times for the start and end of 
+the Fast.
+
+Finally, for those who like to go into excruciating detail, the Bab 
+also spoke of time periods longer than a year.  He grouped years into 
+"Vahids" of nineteen years each, and gave each Vahid a name.  (It is 
+here that the word "Badi" appears, as the name of the sixteenth year 
+in the cycle.)  He further grouped the Vahids themselves into sets of 
+nineteen to create a time period called a "Kull-i-Shay" (literally, 
+"all things").  One Kull-i-Shay is therefore 361 years.
+
+Text taken from
+
+L<http://www.planetbahai.org/articles/2003/ar032103a.html>
+
+This calendar was instituted by the Baha'i spiritual leader 
+Baha'u'llah, who stated that it should begin in the Gregorian year 
+1844 at the (northern) Spring equinox, which is the traditional 
+Iranian New Year. According to calendars rules, the year begins at the
+sunset following the equinox, but up to now the practice in the West 
+has been to start the year at sunset on 20 March. This is usually 
+shown as 21 March, with the understanding that the day begins on the 
+evening before. In the Middle East, Baha'is start the year at the 
+sunset in Tehran following the equinox, and the Baha'i Universal House
+of Justice has not yet decided on the rules of the calendar to be used
+by all (Reingold and Dershowitz: Calendrical Calculations 2001). For 
+now, I present the calendar as used in the West.
+
+Baha'u'llah proclaimed the fulfillment of all religions and the unity 
+of humankind, and the calendar is designed to be a world calendar, 
+(relatively) free of cultural baggage. It is an entirely solar 
+calendar, without even the vestige of previously lunar months as in 
+the Gregorian Calendar.
+
+Text taken from
+
+L<http://www.moonwise.co.uk/year/159bahai.htm>
+
 The Baha'i year is based on the solar year of 365 days, five hours and
 some fifty minutes. Each year is divided into nineteen months of 
 nineteen days each with four Intercalary Days (five in a leap year), 
 called Ayyam-i-Ha which Baha'u'llah specified should precede the 
-nineteenth month. New Year's Day (Naw Ruz) falls on the Spring 
-Equinox. This usually occurs on 21 March but if the Equinox falls 
-after sunset on 21 March, Naw Ruz is to be celebrated on 22 March 
-because the Baha'i day begins at sunset.
+nineteenth month.
+
+The days of the Baha'i week are;
+
+  1. Jalal    - Glory (Saturday)
+  2. Jamal    - Beauty (Sunday)
+  3. Kaml     - Perfection (Monday)
+  4. Fidal    - Grace (Tuesday)
+  5. 'Idal    - Justice (Wednesday)
+  6. Istijlal - Majesty (Thursday)
+  7. Istiqlal - Independence (Friday)
+
+The Baha'i day of rest is Isiqlal (Friday) and the Baha'i day begins 
+and ends at sunset.
 
 The names of the months in the Baha'i (Badi) calendar were given by 
 the Bab, who drew them from the nineteen names of God invoked in a 
@@ -536,27 +625,7 @@ prayer said during the month of fasting in Shi'ih Islam. They are:
   * Ayyam-i-Ha  - Days of Ha (26 February - 1 March))
   19. 'Ala      - Loftiness (2 March - 20 March)
 
-The days of the Baha'i week are;
-
-  1. Jalal    - Glory (Saturday)
-  2. Jamal    - Beauty (Sunday)
-  3. Kaml     - Perfection (Monday)
-  4. Fidal    - Grace (Tuesday)
-  5. 'Idal    - Justice (Wednesday)
-  6. Istijlal - Majesty (Thursday)
-  7. Istiqlal - Independence (Friday)
-
-The Baha'i day of rest is Isiqlal (Friday) and the Baha'i day begins 
-and ends at sunset.
-
-Each of the days of the month is also given the name of one of the 
-attributes of God. The names are the same as those of the nineteen 
-months. Thus Naw-Ruz, the first day of the first month, would be 
-considered the 'day of Baha of the month Baha'. If it fell on a 
-Saturday, the first day of the Baha'i week, it would be the 'day of 
-jalal'.
-
-Ayyam-i-Ha
+Ayyam-i-Ha:
 
 Literally, Days of Ha (i.e. the letter Ha, which in the abjad system 
 has the numerical value of 5). Intercalary Days. The four days (five 
@@ -601,10 +670,10 @@ There are eleven Holy Days which Baha'is celebrate. On [many] of these
 days, all work should cease. They are listed in chronological order 
 according to the Baha'i calendar.
 
-* Naw Ruz - March 21
+* Naw Ruz - (Generally) March 21
 
 Literally, New Day. The Baha'i New Year. Like the ancient Persian New 
-Year, it occurs on the spring equinox, which generally falls on 21 
+Year, it occurs on the Spring equinox, which generally falls on 21 
 March. If the equinox falls after sunset on 21 March, Naw Ruz is 
 celebrated on 22 March, since the Baha'i day begins at sunset. For the
 present, however, the celebration of Naw Ruz is fixed on 21 March. In 
@@ -615,7 +684,7 @@ work is to be suspended.
 
 * Ridvan
 
-First day - 21 April; Ninth day - 29 April; Twelfth day - 2 May
+First day - 21 April; Ninth day - 29 April; Twelfth (last) day - 2 May
 
 The Ridvan (pronouced "riz-wan") festival commemorates the first 
 public declaration by Baha'u'llah of His Station and mission (in 
@@ -672,46 +741,6 @@ Text taken from
 
 L<http://www.bahaindex.com/calendar.html>
 
-Baha'i Calendar
-
-(days start on the evening before the Gregorian date given)
-
-This new calendar was instituted by the Baha'i spiritual leader 
-Baha'u'llah, who stated that it should begin in the Gregorian year 
-1844 at the (northern) Spring equinox, which is the traditional 
-Iranian New Year. According to calendars rules, the year begins at the
-sunset following the equinox, but up to now the practice in the West 
-has been to start the year at sunset on 20 March. This is usually 
-shown as 21 March, with the understanding that the day begins on the 
-evening before. In the Middle East, Baha'is start the year at the 
-sunset in Tehran following the equinox, and the Baha'i Universal House
-of Justice has not yet decided on the rules of the calendar to be used
-by all (Reingold and Dershowitz: Calendrical Calculations 2001). For 
-now, I present the calendar as used in the West.
-
-Baha'u'llah proclaimed the fulfillment of all religions and the unity 
-of humankind, and the calendar is designed to be a world calendar, 
-(relatively) free of cultural baggage. It is an entirely solar 
-calendar, without even the vestige of previously lunar months as in 
-the Gregorian Calendar. It has nineteen months of nineteen days, with 
-some extra days before the last month. The cycle of 19 names is used 
-for the names of both the months and the days.
-
-The Vahid is a period of 19 years, and a Kull-i-Shay is 19 Vahids (361
-years). These cycles have another set of names: Alif (A,1), Ba (B,2), 
-Ab (Father,3), Dal (D,4), Bab (Gate,5), Vav (V,6), Abad (Eternity,7), 
-Jad (Generosity,8), Baha (Splendour,9), Hubb (Love,10), Bahhaj 
-(Delightful,11), Javab (Answer,12), Ahad (Single,13), Vahhab 
-(Bountiful,14), Vidad (Affection,15), Badi (Beginning,16), Bahi 
-(Luminous,17), Abha (Most Luminous,18), Vahid (Unity,19).
-
-The weekly seven day cycle is still used, and the day of rest is 
-Friday.
-
-Text taken from
-
-L<http://www.moonwise.co.uk/year/159bahai.htm>
-
 =head1 EXPORTED FUNCTIONS
 
 =head2 to_bahai
@@ -723,7 +752,6 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
       use_gmtime => $use_gmtime,
       %args,
   );
-
   $bahai_date = to_bahai (
       year  => $year,
       month => $month,
@@ -738,7 +766,6 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
       use_gmtime => $use_gmtime,
       %args,
   );
-
   %bahai_date = to_bahai (
       year  => $year,
       month => $month,
@@ -950,15 +977,17 @@ Overload localtime and gmtime, just to be cool?
 
 Hi Kirsten  : )
 
-=head1 REFERENCES
+=head1 SEE ALSO
 
-L<http://www.projectpluto.com/calendar.htm#bahai>
+L<http://www.projectpluto.com/calendar.htm#bahai> <= Very interesting
+
+The following are partially quoted above:
+
+L<http://www.planetbahai.org/articles/2003/ar032103a.html>
 
 L<http://www.bahaindex.com/calendar.html>
 
 L<http://www.moonwise.co.uk/year/159bahai.htm>
-
-L<http://www.perl.com/pub/a/2003/03/13/datetime.html>
 
 =head1 AUTHOR
 

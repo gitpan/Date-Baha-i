@@ -132,3 +132,6 @@ Revision history for Perl extension Date::Baha::i.
 0.12.2  Tue May 20 2003
     - Cleaned a bit of code.
     - Fixed as_string.t
+
+0.12.3  Wed May 21 2003
+    - Fixed, pruned and augmented documentation.
