@@ -100,8 +100,28 @@ Revision history for Perl extension Date::Baha::i.
 0.11.1  Wed Apr 30 2003
     - Cleaned and fixed documentation.
 
-0.11.2  
+0.11.2  Mon May 5 2003
     - Fixed documentation a bit.
 
-0.11.3
+0.11.3  Wed May 7 2003
     - Oof.  Fixed the incorrect holy_day documentation.
+
+0.12  Sun May 18 2003
+    - Fixed a misnaming that would miscalulate the holy day in a
+      leap year Ayyam-i-Ha.
+    - Fixed the start date for the Ayyam-i-Ha HOLY_DAYS entry.
+    - Changed "timestamp" to "epoch".
+    - Renamed the date function to "to_bahai" and added
+      sub date { goto &to_bahai }.
+    - Added a ymd from_bahai function.
+    - Replaced the heart of the to_bahai function with some simple 
+      date comparison code.
+    - Removed cumbersome helper functions that were only used in the
+      to_bahai function.
+    - Made the next_holy_day function return a string in scalar 
+      context and a hash (instead of a hash reference) in array
+      context.
+    - Cleaned up random bits of other code, in general.
+    - Fixed and enhanced documentation.
+    - Retooled the test suite to test every date in a Baha'i year for
+      the to_bahai and from_bahai functions.

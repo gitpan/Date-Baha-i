@@ -1,7 +1,8 @@
-package Date::Baha::i;  # {{{
+package Date::Baha::i;
 
+# Package declarations {{{
 use strict;
-use vars qw($VERSION); $VERSION = '0.11.3';
+use vars qw($VERSION); $VERSION = '0.12';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -10,18 +11,22 @@ use vars qw(@EXPORT @EXPORT_OK);
     date
     days
     days_of_the_week
+    from_bahai
     holy_days
     months
     next_holy_day
+    to_bahai
     years
 );
 
 use Date::Calc qw(
-    leap_year
     Add_Delta_Days
+    Date_to_Days
     Day_of_Week
+    Day_of_Year
     Delta_Days
     Timezone
+    leap_year
 );
 use Lingua::EN::Numbers::Ordinate;
 use Lingua::Num2Word;
@@ -29,10 +34,11 @@ use Lingua::Num2Word;
 
 # Set constants {{{
 use constant FACTOR => 19;
+use constant FEBRUARY => 2;
 use constant MARCH => 3;
+use constant SHARAF => 16;
 use constant LAST_START_DAY => 2;   # First day of the fast.
 use constant YEAR_START_DAY => 21;  # Spring equinox.
-use constant FEBRUARY => 2;
 use constant LEAP_START_DAY => 26;  # The intercalary days.
 use constant FIRST_YEAR  => 1844;
 use constant ADJUST_YEAR => 1900;
@@ -57,6 +63,7 @@ use constant CYCLE_YEAR => qw(
     Abha
     Vahid
 );
+
 use constant MONTH_DAY => qw(
     Baha
     Jalal
@@ -79,6 +86,34 @@ use constant MONTH_DAY => qw(
     'Ala
     Ayyam-i-Ha
 );
+
+# NOTE: Trailing 0's are stripped, resulting in incorrect
+# computations if certain decimals are not quoted.
+use constant MONTHS => {
+# Month => [Month num, Date span], # Non-leap year day span
+
+    "Baha"       => [ 0,  '3.21',  '4.08'],  # 80,  98
+    "Jalal"      => [ 1,  '4.09',  '4.27'],  # 99, 117
+    "Jamal"      => [ 2,  '4.28',  '5.16'],  #118, 136
+    "'Azamat"    => [ 3,  '5.17',  '6.04'],  #137, 155
+    "Nur"        => [ 4,  '6.05',  '6.23'],  #156, 174
+    "Rahmat"     => [ 5,  '6.24',  '7.12'],  #175, 193
+    "Kalimat"    => [ 6,  '7.13',  '7.31'],  #194, 212
+    "Kamal"      => [ 7,  '8.01',  '8.19'],  #213, 231
+    "Asma'"      => [ 8,  '8.20',  '9.07'],  #232, 250
+    "'Izzat"     => [ 9,  '9.08',  '9.26'],  #251, 269
+    "Mashiyyat"  => [10,  '9.27', '10.15'],  #270, 288
+    "'Ilm"       => [11, '10.16', '11.03'],  #289, 307
+    "Qudrat"     => [12, '11.04', '11.22'],  #308, 326
+    "Qawl"       => [13, '11.23', '12.11'],  #327, 345
+    "Masa'il"    => [14, '12.12', '12.30'],  #346, 364
+    "Sharaf"     => [15, '12.31',  '1.18'],  #365,  18
+    "Sultan"     => [16,  '1.19',  '2.06'],  # 19,  37
+    "Mulk"       => [17,  '2.07',  '2.25'],  # 38,  56
+    "Ayyam-i-Ha" => [-1,  '2.26',  '3.01'],  # 57,  60
+    "'Ala"       => [18,  '3.02',  '3.20'],  # 61,  79
+};
+
 use constant DOW_NAME => qw(
     Jalal
     Jamal
@@ -91,7 +126,6 @@ use constant DOW_NAME => qw(
 use constant HOLY_DAYS => {
     # Work suspended:
     "Naw Ruz"                   => [ 3, 21],
-    "Days of Ridvan"            => [ 4, 21, 12],
     "First Day of Ridvan"       => [ 4, 21],
     "Ninth Day of Ridvan"       => [ 4, 29],
     "Twelfth Day of Ridvan"     => [ 5,  2],
@@ -103,8 +137,9 @@ use constant HOLY_DAYS => {
     # Work not suspended:
     "Day of the Covenant"       => [11, 26],
     "Ascension of 'Abdu'l-Baha" => [11, 28],
-    "Ayyam-i-Ha"                => [ 2, 25,  4],  # 5 days in leap years
+    "Ayyam-i-Ha"                => [ 2, 26,  4],  # 5 days in leap years
     "The Fast"                  => [ 3,  2, 19],
+    "Days of Ridvan"            => [ 4, 21, 12],
 };
 # }}}
 
@@ -117,74 +152,37 @@ sub days_of_the_week { return DOW_NAME }
 sub holy_days { return HOLY_DAYS }
 # }}}
 
-sub date {  # {{{
+sub date { goto &to_bahai }
+sub to_bahai {  # {{{
     my %args = @_;
-
+    # readability++
     my ($year, $month, $day) = @args{qw(year month day)};
 
+    # Use the system time, if a ymd is not provided.
     unless ($year && $month && $day) {
-        if ($args{use_gmtime}) {
-            ($year, $month, $day) = $args{timestamp}
-                ? (gmtime($args{timestamp}))[5,4,3]
-                : (gmtime)[5,4,3];
-        }
-        else {
-            ($year, $month, $day) = $args{timestamp}
-                ? (localtime($args{timestamp}))[5,4,3]
-                : (localtime)[5,4,3];
-        }
+        $args{epoch} ||= time;
+
+        ($year, $month, $day) = $args{use_gmtime}
+            ? (gmtime $args{epoch})[5,4,3]
+            : (localtime $args{epoch})[5,4,3];
 
         # Fix the year and the month.
         $year += ADJUST_YEAR;
         $month++;
     }
 
-    # This is what will eventually be used in the return.
     my ($bahai_month, $bahai_day);
 
-    # Begin with the first month of the year (at the Spring equinox).
-    my ($m, $d) = (MARCH, YEAR_START_DAY);
+    for (values %{ MONTHS() }) {
+        my ($days, $lower, $upper) = _setup_date_comparison(
+            $year, $month, $day, @$_[1,2]
+        );
 
-    # Found month flag.
-    my $found = 0;
-
-    # Loop through all the official months, less two.
-    for my $n (0 .. FACTOR - 2) {
-        my ($my_y, $my_m, $my_d) = _ninteen_days ($year, $m, $d);
-
-        # Have we found our month?
-        if ($found = _in_month_span (
-                $month, $day, $m, $d, $my_m, $my_d)
-        ) {
-            $bahai_day = _delta_month_days (
-                $m, $d - 1, $year, $month, $day
-            );
-            $bahai_month = $n;
+        if ($days >= $lower && $days <= $upper) {
+            $bahai_month = $_->[0];
+            $bahai_day = $days - $lower;
             last;
         }
-
-        # Increment our date.
-        ($m, $d) = ($my_m, $my_d + 1);
-    }
-
-    # If we haven't found our month, check 'Ala.
-    if (!$found &&
-        ($found = _in_month_span (
-            $month, $day, MARCH, LAST_START_DAY, MARCH, YEAR_START_DAY - 1)
-        )
-    ) { 
-        $bahai_day = _delta_month_days (
-            MARCH, LAST_START_DAY - 1, $year, $month, $day
-        );
-        $bahai_month = FACTOR - 1;
-    }   
-
-    # If we still didn't find a month, it is Ayyam-i-Ha!
-    unless ($found) {
-        $bahai_day = _delta_month_days (
-            FEBRUARY, LEAP_START_DAY - 1, $year, $month, $day
-        );
-        $bahai_month = -1;
     }
 
     # Build the date hash to return.
@@ -194,6 +192,29 @@ sub date {  # {{{
     );
 }
 # }}}
+
+sub from_bahai {  # {{{
+    my %args = @_;
+
+    # Figure out the year.
+    my $year = $args{month} > SHARAF || $args{month} == -1
+        ? $args{year} + FIRST_YEAR
+        : $args{year} + FIRST_YEAR - 1;
+
+    # Reset the month number if we are given Ayyam-i-Ha.
+    $args{month} = 0 if $args{month} == -1;
+
+    # This ugliness actually finds the month and day number.
+    my $day = (MONTHS->{ (MONTH_DAY)[$args{month} - 1] })->[1];
+    (my $month, $day) = split /\./, $day;
+    ($year, $month, $day) = Add_Delta_Days (
+        $year, $month, $day, $args{day} - 1
+    );
+
+    return wantarray
+        ? ($year, $month, $day)
+        : join '/', $year, $month, $day;
+}  # }}}
 
 sub as_string {  # {{{
     # XXX With Lingua::Num2Word, naively assume that we only care
@@ -308,70 +329,57 @@ sub next_holy_day {  # {{{
         }
     }
 
-    # If one was not found, just grad the last date in the list.
+    # If one was not found, just grab the last date in the list.
     $holy_date = $sorted[-1] unless $holy_date;
 
-    return { $inverted{$holy_date} => [ split /\./, $holy_date ] };
+    return wantarray
+        ? ( $inverted{$holy_date} => [ split /\./, $holy_date ] )
+        : "$inverted{$holy_date}: $holy_date";
 }  # }}}
 
 # Helper functions {{{
-# The Baha'i week starts on Saturday.
-sub _day_of_week {
-    my ($y, $m, $d) = @_;
-    my $standard = Day_of_Week ($y, $m, $d);
-    $standard++;
-    return $standard > 6 ? 0 : $standard;
-}
+# Date comparison gymnastics.
+sub _setup_date_comparison {  # {{{
+    my ($y, $m, $d, $s, $e) = @_;
 
-# Compute the number of days between consecutive months.
-# In our case, it's, "How many days are we into this Baha'i month?"
-sub _delta_month_days {
-    my ($m1, $d1, $y2, $m2, $d2) = @_;
-    # If Dec-Jan, get the next year.
-    my $y1 = $m1 == 12 && $m2 == 1 ? $y2 + 1 : $y2;
-    return Delta_Days ($y1, $m1, $d1, $y2, $m2, $d2);
-}
+    my ($start_month, $start_day) = split /\./, $s;
+    my ($end_month, $end_day) = split /\./, $e;
 
-# What month are we in?
-sub _in_month_span {
-    my ($m, $d, $m1, $d1, $m2, $d2) = @_;
-    # If the months are the same, just check the day range.
-    if ($m1 == $m2 && $m == $m1) {
-        return $d >= $d1 && $d <= $d2 ? 1 : 0;
+    my ($start_year, $end_year) = ($y, $y);
+    if ($end_month < $start_month) {
+        if ($m == $start_month) {
+            $end_year++;
+        }
+        elsif ($m == $end_month) {
+            $start_year--;
+        }
     }
-    # The months are different so consider each separately.
-    else {
-        return
-            ($m == $m1 && $d >= $d1)
-            ||
-            ($m == $m2 && $d <= $d2)
-            ? 1 : 0;
-    }
-}
 
-# Return  the standard date ninteen days hence.
-sub _ninteen_days {
-    my ($y, $m, $d) = @_;
-    return Add_Delta_Days($y, $m, $d - 1, FACTOR)
-}
+    return
+        Date_to_Days($y, $m, $d),
+        Date_to_Days($start_year, $start_month, $start_day),
+        Date_to_Days($end_year, $end_month, $end_day);
+}  # }}}
 
-sub _build_date {
+sub _build_date {  # {{{
     my ($year, $month, $day, $new_month, $new_day, %args) = @_;
 
     my %date;
     @date{qw(month day)} = ($new_month, $new_day);
 
-    # Set the day of the week.
-    $date{dow} = _day_of_week ($year, $month, $day);
-    $date{dow_name} = (DOW_NAME)[$date{dow}];
-    $date{dow}++;
+    # Set the day of the week (rotated by 2).
+    $date{dow} = Day_of_Week ($year, $month, $day);
+    $date{dow} += 2;
+    $date{dow} = $date{dow} - 7 if $date{dow} > 7;
+    $date{dow_name} = (DOW_NAME)[$date{dow} - 1];
 
     # Set the day.
-    $date{day_name} = (MONTH_DAY)[$date{day} - 1];
+    $date{day_name} = (MONTH_DAY)[$date{day}];
+    $date{day}++;
 
     # Set the the month.
     $date{month_name} = (MONTH_DAY)[$date{month}];
-    # Fix the month number, unless we are in Ayyam-i-ha.
+    # Fix the month number, unless we are in Ayyam-i-Ha.
     $date{month}++ unless $date{month} == -1;
 
     # Set the year.
@@ -408,36 +416,32 @@ sub _build_date {
         if exists $inverted{$m_d};
 
     return wantarray ? %date : as_string (\%date, %args);
-}
+}  # }}}
 
-sub _invert_holy_days {
+sub _invert_holy_days {  # {{{
     my $year = shift || (localtime)[5] + ADJUST_YEAR;
-    my $h = HOLY_DAYS;
 
-    my %expanded;
+    my %inverted;
 
-    while (my ($name, $dates) = each %$h) {
+    while (my ($name, $dates) = each %{ HOLY_DAYS() }) {
         # Pre-pad the day number with a zero.
-        $dates->[1] = sprintf '%02d', $dates->[1];
-
-        $expanded{"$dates->[0].$dates->[1]"} = $name;
+        $inverted{ sprintf '%d.%02d', @$dates[0,1] } = $name;
 
         # Does this date contain a day span?
         if (@$dates == 3) {
             # Increment the Ayyam-i-Ha day if we are in a leap year.
-            $dates->[2]++ if $name eq 'Ayyam-i-ha' && leap_year ($year);
+            $dates->[2]++ if $name eq 'Ayyam-i-Ha' && leap_year ($year);
 
             for (1 .. $dates->[2] - 1) {
-                # Pre-pad the day number with a zero.
                 (undef, my $month, my $day) = Add_Delta_Days($year, @$dates[0,1], $_);
-                $day = sprintf '%02d', $day;
-                $expanded{"$month.$day"} = $name;
+                # Pre-pad the day number with a zero.
+                $inverted{ sprintf '%d.%02d', $month, $day} = $name;
             }
         }
     }
 
-    return %expanded;
-}
+    return %inverted;
+}  # }}}
 # }}}
 
 1;
@@ -451,31 +455,54 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
 
   use Date::Baha'i;
 
-  %bahai_date = date ();
-  %bahai_date = date (timestamp => $secs_since_1970);
-  $bahai_date = date (
+  $bahai_date = to_bahai ();
+  $bahai_date = to_bahai (epoch => time);
+  $bahai_date = to_bahai (
       year  => $year,
       month => $month,
       day   => $day,
   );
 
-  $bahai_date = as_string (\%bahai_date);
+  %bahai_date = to_bahai ();
+  %bahai_date = to_bahai (epoch => time);
+  %bahai_date = to_bahai (
+      year  => $year,
+      month => $month,
+      day   => $day,
+  );
+
+  ($year, $month, $day) = from_bahai (
+      year  => $bahai_year,
+      month => $bahai_month,
+      day   => $bahai_day,
+  );
+  $date = from_bahai (
+      year  => $bahai_year,
+      month => $bahai_month,
+      day   => $bahai_day,
+  );
 
   %holy_day = next_holy_day ($year, $month, $day);
+  $holy_day = next_holy_day ($year, $month, $day);
 
-  @ret = cycles ();
-  @ret = years ();
-  @ret = months ();
-  @ret = days ();
-  @ret = days_of_the_week ();
-  %ret = holy_days ();
+  @cycles = cycles ();
+  @years = years ();
+  @months = months ();
+  @days = days ();
+  @days_of_the_week = days_of_the_week ();
+  %holy_days = holy_days ();
 
 =head1 ABSTRACT
 
 This package outputs a (numeric and named) Baha'i date from a standard 
-system time stamp or year, month, day triple.
+epoch time stamp or year, month, day triple.
 
 =head1 DESCRIPTION
+
+This package renders the Baha'i date from two standard date formats -
+epoch time and the Gregorian year/month/day triple.  It is not a date
+arithmetic calculator or two-way converter.  It simply takes a
+standard date and converts it to the Baha'i representation.
 
 The Baha'i year is based on the solar year of 365 days, five hours and
 some fifty minutes. Each year is divided into nineteen months of 
@@ -590,9 +617,7 @@ work is to be suspended.
 
 * Ridvan
 
-  First Day   - 21 April
-  Ninth Day   - 29 April
-  Twelfth Day -  2 May
+First day - 21 April; Ninth day - 29 April; Twelfth day - 2 May
 
 The Ridvan (pronouced "riz-wan") festival commemorates the first 
 public declaration by Baha'u'llah of His Station and mission (in 
@@ -691,52 +716,81 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 
 =head1 EXPORTED FUNCTIONS
 
-=head2 date
+=head2 to_bahai
 
-  %bahai_date = date ();
-
-  %bahai_date = date (
-      timestamp  => $secs_since_1970,
+  # Return a hash in array context.
+  %bahai_date = to_bahai ();
+  %bahai_date = to_bahai (
+      epoch => time,
       use_gmtime => $use_gmtime,
       %args,
   );
-
-  $bahai_date = date (
+  %bahai_date = to_bahai (
       year  => $year,
       month => $month,
       day   => $day,
       %args,
   );
 
-This function returns a hash of the Baha'i date names and numbers from
-either epoch seconds or a year, month, day triple.
+  # Return a string in scalar context.
+  $bahai_date = to_bahai ();
+  $bahai_date = to_bahai (
+      epoch => time,
+      use_gmtime => $use_gmtime,
+      %args,
+  );
+  $bahai_date = to_bahai (
+      year  => $year,
+      month => $month,
+      day   => $day,
+      %args,
+  );
 
-If using epoch seconds (timestamp), this function can be forced to
-use gmtime instead of localtime.  If neither a timestamp or ymd 
-triple are given, the system localtime (or gmtime) are used as a 
-default.
+This function returns either a string or a hash of the Baha'i date 
+names and numbers from either epoch seconds or a year, month, day 
+triple.
 
-The extra arguments are used for the as_string () function, which are 
-detailed below.
+If using epoch seconds, this function can be forced to use gmtime 
+instead of localtime.  If neither a epoch or ymd triple are given, 
+the system localtime (or gmtime) are used as a default.
+
+The extra arguments are most handy, and used by the as_string 
+function, detailed below.
 
 In a scalar context, this function returns a string sentence with the 
 numeric and/or named Baha'i date.  In an array context, it returns a 
 hash with the following keys:
 
-  kull_i_shay
-  cycle
-  cycle_name
-  cycle_year
-  year
-  year_name
-  month
-  month_name
-  day
-  day_name
-  dow
-  dow_name
-  timezone
-  holy_day
+  kull_i_shay,
+  cycle, cycle_name, cycle_year,
+  year, year_name,
+  month, month_name,
+  day, day_name,
+  dow, dow_name,
+  timezone, and
+  holy_day, if there is one.
+
+=head2 from_bahai
+
+  # Return a ymd triple in array context.
+  ($year, $month, $day) = from_bahai (
+      year  => $bahai_year,
+      month => $bahai_month,
+      day   => $bahai_day,
+  );
+
+  # Return a y/m/d string in scalar context.
+  $date = from_bahai (
+      year  => $bahai_year,
+      month => $bahai_month,
+      day   => $bahai_day,
+  );
+
+This function returns either a string or a list of the standard date 
+from a year, month, day triple of the Baha'i date.
+
+* Currently, this only supports the Baha'i year, month and day.  The
+Baha'i cycle and Kull-i-Shay are coming soon, to a theatre near you...
 
 =head2 as_string
 
@@ -821,13 +875,15 @@ Here are some handy examples (newlines added for readability):
 =head2 next_holy_day
 
   %holy_day = next_holy_day ($year, $month, $day);
+  $holy_day = next_holy_day ($year, $month, $day);
 
 This function returns the first holy day after the provided date
-triple.
+triple as either a hash (in array context) or a string (in scalar 
+context).
 
-The return is a hash reference with a single key (the name of the
-holy day) and a two or three element array reference of 
-[month, day, duration] as the value.
+In array context, a hash with a single key (the name of the holy day)
+and a two or three element array reference of [month, day, duration]
+as the value.
 
 =head2 cycles
 
@@ -881,13 +937,15 @@ L<Lingua::Num2Word>
 
 =head1 TO DO
 
-Convert to standard dates and Unix time stamps from Baha'i dates.
+Factor out the fugly _invert_holy_days function.
+
+Make the test suite test every possible date over two years, 
+including a leap year.
 
 Optionally output unicode.
 
 Base the date computation on the time of day (the Baha'i day begins at 
-Sunset) - and the location longitude/latitude.  Yes, that would be 
-with Astro::Sunrise::sunset ().
+Sunset) - and the location longitude/latitude.
 
 Overload localtime and gmtime, just to be cool?
 
@@ -895,7 +953,23 @@ Overload localtime and gmtime, just to be cool?
 
 Hi Kirsten  : )
 
+=head1 DISCLAIMER
+
+I have no designs or intentions to be compatible with other date and 
+time representations (such as ICal or DateTime).  That is for those 
+external packages and the people who care to do the ultra-simple 
+conversions.
+
+This package is simple from the outside and requires only that which 
+is necessary to represent the Baha'i date.  That is, you give it a 
+date, and it returns the Baha'i representation.
+
+(Having said that, please see the TO DO section about wanting to do
+two-way conversions.)
+
 =head1 REFERENCES
+
+L<http://www.projectpluto.com/calendar.htm#bahai>
 
 L<http://www.bahaindex.com/calendar.html>
 

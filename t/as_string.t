@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 18;
+use Test::More tests => 15;
 
 # test context {{{
 my $test_time = '1048204800';  # 2003/3/21 00:00:00
@@ -9,82 +9,61 @@ my %test_greg = (
     day   => 21
 );
 my $test_date = {
-    'cycle'       => 9,
-    'cycle_name'  => 'Baha',
-    'cycle_year'  => 8,
-    'day'         => 1,
-    'day_name'    => 'Baha',
-    'dow'         => 7,
-    'dow_name'    => 'Istiqlal',
-    'holy_day'    => { 'Naw Ruz' => [3, 21] },
-    'kull_i_shay' => 1,
-    'month'       => 1,
-    'month_name'  => 'Baha',
-    'year'        => 160,
-    'year_name'   => 'Jad',
+    cycle       => 9,
+    cycle_name  => 'Baha',
+    cycle_year  => 8,
+    day         => 1,
+    day_name    => 'Baha',
+    dow         => 7,
+    dow_name    => 'Istiqlal',
+    holy_day    => { 'Naw Ruz' => [3, 21] },
+    kull_i_shay => 1,
+    month       => 1,
+    month_name  => 'Baha',
+    year        => 160,
+    year_name   => 'Jad',
 };
 my $test_string = "week day Istiqlal, day Baha of month Baha, year one-hundred sixty of year Jad of the vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz";
 # }}}
 
-BEGIN { use_ok("Date::Baha::i") };
+BEGIN { use_ok('Date::Baha::i') };
 
-# NOTE: The TZ functionality not tested due to local variation.
+# NOTE: The TZ functionality is not tested and epoch time conversion
+# uses gmtime, due to local variation.
 
-# Check the date output.
+# as_string functionality
 #
-my %date = date (
-    timestamp => $test_time,
-    use_gmtime => 1,
-);
-delete $date{timezone};
-is_deeply \%date, $test_date, "timestamp in array context";
-
-%date = date (%test_greg);
-delete $date{timezone};
-is_deeply \%date, $test_date, "ymd date in array context";
-
-my $date = date (
-    timestamp => $test_time,
-    use_gmtime => 1,
-);
-is $date, $test_string, "timestamp in scalar context";
-
-$date = date (%test_greg);
-is $date, $test_string, "ymd in scalar context";
-
-# as_string () functionality
-#
-$date = as_string (\%date);
+my $date = as_string ($test_date);
 is $date, $test_string,
     'long alpha string';
-$date = as_string (\%date,
+$date = as_string ($test_date,
     size    => 0,
     numeric => 0,
     alpha   => 1,
 );  
 is $date, 'Istiqlal, Baha of Baha, Jad of Baha',
     'short alpha string';
-$date = as_string (\%date,
+$date = as_string ($test_date,
     size    => 1,
     numeric => 1,
     alpha   => 0,
 );
 is $date, '7th day of the week, 1st day of the 1st month, year 160, 8th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz',
     'long numeric string';
-$date = as_string (\%date,
+$date = as_string ($test_date,
     size    => 0,
     numeric => 1,
     alpha   => 0,
 );
 is $date, '7, 1/1/160', 'short numeric string';
-$date = as_string (\%date,
+$date = as_string ($test_date,
     size    => 1,
     numeric => 1,
     alpha   => 1,
 );
 is $date, '7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one-hundred sixty (160), 8th year Jad of the 9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz',
     'long alpha-numeric string';
-$date = as_string (\%date,
+$date = as_string ($test_date,
     size    => 0,
     numeric => 1,
     alpha   => 1,
@@ -92,11 +71,14 @@ $date = as_string (\%date,
 is $date, 'Istiqlal (7), Baha (1) of Baha (1), year 160, Jad (8) of Baha (9)',
     'short alpha-numeric string';
 
-# next holy day
+# Next holy day functionality.
 #
-$date = next_holy_day (@test_greg{qw(year month day)});
-is_deeply $date, { 'First Day of Ridvan' => [4, 21] },
-    'next holy day';
+my %holy_day = next_holy_day (@test_greg{qw(year month day)});
+is_deeply \%holy_day, { 'First Day of Ridvan' => [4, 21] },
+    'next holy day in array context';
+my $holy_day = next_holy_day (@test_greg{qw(year month day)});
+is_deeply $holy_day, 'First Day of Ridvan: 4.21',
+    'next holy day in scalar context';
 
 # Name lists.
 #
