@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.06.2';
+use vars qw($VERSION); $VERSION = '0.07';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -119,9 +119,20 @@ sub holy_days { return HOLY_DAYS }
 sub date {
     my %args = @_;
 
-    my ($year, $month, $day) = $args{timestamp}
-        ? (localtime($args{timestamp}))[5,4,3]
-        : (localtime)[5,4,3];
+    my ($year, $month, $day);
+
+    if ($args{use_gmtime}) {
+        ($year, $month, $day) = $args{timestamp}
+            ? (gmtime($args{timestamp}))[5,4,3]
+            : (gmtime)[5,4,3];
+    }
+    else {
+        ($year, $month, $day) = $args{timestamp}
+            ? (localtime($args{timestamp}))[5,4,3]
+            : (localtime)[5,4,3];
+    }
+    # XXX Argh!  Why do I need to do this?  Am I deluded?
+    $day++ unless exists $args{use_gmtime} && $args{use_gmtime};
 
     # This is what will eventually be used in the return.
     my ($bahai_month, $bahai_day);
@@ -186,10 +197,10 @@ sub date {
 # greg_to_bahai function {{{
 sub greg_to_bahai {
     my ($y, $m, $d, %args) = @_;
-    # It would seem that Date::Calc::Date_to_Time (and Time_to_Date)
-    # is broken wrt the day.  "+ 1"?  WTF?
+    # XXX Argh!  Why do I need to do this?  Am I deluded?
+    $d++ unless exists $args{use_gmtime} && $args{use_gmtime};
     return date (
-        timestamp => Date_to_Time ($y, $m, $d + 1, 0, 0, 0),
+        timestamp => Date_to_Time ($y, $m, $d, 0, 0, 0),
         %args
     );
 }

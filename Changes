@@ -57,8 +57,13 @@ Revision history for Perl extension Date::Baha::i.
 0.06.1  Sat Mar 22 2003
     - Cleaned up documentation.
 
-0.062  Sat Mar 22 2003
+0.06.2  Sat Mar 22 2003
     - Oof!  Fixed the syntax of a function call to which I had 
       changed to interface.
     - Deleted the timezone key from the returned date_hash in the
       test suite.
+
+0.07  Sat Mar 22 2003
+    - Used gmtime in the date and greg_to_bahai functions, if asked to.
+    - Incremented the day number if we are using localtime.  XXX: Why??
+    - Made tests use gmtime.

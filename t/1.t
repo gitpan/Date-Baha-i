@@ -1,8 +1,9 @@
 use strict;
 use Test::More tests => 17;
+use Data::Dumper;
 
 # test context {{{
-my $test_time = 1048296711;  # 2003/3/21 - Naw Ruz  : )
+my $test_time = '1048204800';  # 2003/3/21 00:00:00
 my @test_greg = (2003, 3, 21);
 my $test_date = {
     'kull_i_shay' => 1,
@@ -27,21 +28,33 @@ BEGIN { use_ok("Date::Baha::i") };
 
 # Check the date output.
 #
-my %date = date (timestamp => $test_time);
+my %date = date (
+    timestamp => $test_time,
+    use_gmtime => 1,
+);
 delete $date{timezone};
 is_deeply \%date, $test_date,
     "Baha'i date in array context";
 
-%date = greg_to_bahai (@test_greg);
+%date = greg_to_bahai (
+    @test_greg,
+    use_gmtime => 1,
+);
 delete $date{timezone};
 is_deeply \%date, $test_date,
     "Gregorian to Baha'i date in array context";
 
-my $date = date (timestamp => $test_time);
+my $date = date (
+    timestamp => $test_time,
+    use_gmtime => 1,
+);
 is $date, $test_string, 
     "Baha'i date in scalar context";
 
-$date = greg_to_bahai (@test_greg);
+$date = greg_to_bahai (
+    @test_greg,
+    use_gmtime => 1,
+);
 is $date, $test_string, 
     "Gregorian to Baha'i date in scalar context";
 
