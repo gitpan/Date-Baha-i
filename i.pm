@@ -1,7 +1,7 @@
 package Date::Baha::i;  # {{{
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.11.2';
+use vars qw($VERSION); $VERSION = '0.11.3';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -289,8 +289,6 @@ sub as_string {  # {{{
 }  # }}}
 
 sub next_holy_day {  # {{{
-    # NOTE: We are only concerned with the month/day, so the date year
-    # is ignored.
     my ($year, $month, $day) = @_;
 
     # Make the month and day a pseudo real number.
@@ -470,7 +468,7 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
   @ret = months ();
   @ret = days ();
   @ret = days_of_the_week ();
-  @ret = holy_days ();
+  %ret = holy_days ();
 
 =head1 ABSTRACT
 
@@ -864,7 +862,7 @@ This function returns the 7 day-of-the-week names as an array.
 
 =head2 holy_days
 
-  @days = holy_days ();
+  %days = holy_days ();
 
 This function returns the holy days as a hash, where the keys are 
 the holy day names and the values are array references.  These array 
