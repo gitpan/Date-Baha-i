@@ -35,10 +35,12 @@ is_deeply \%date, $test_date,
     "Gregorian to Baha'i date in array context";
 
 my $date = date (timestamp => $test_time);
-is $date, $test_string, "Baha'i date in scalar context";
+is $date, $test_string, 
+    "Baha'i date in scalar context";
 
 $date = greg_to_bahai (@test_greg);
-is $date, $test_string, "Gregorian to Baha'i date in scalar context";
+is $date, $test_string, 
+    "Gregorian to Baha'i date in scalar context";
 
 # as_string () functionality
 # NOTE: TZ functionality not tested due to local variation.

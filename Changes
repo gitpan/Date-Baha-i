@@ -53,3 +53,6 @@ Revision history for Perl extension Date::Baha::i.
       representations.
     - Updated documentation and test suite accordingly.
     - Made the test suite non-lame.  Yay!
+
+0.06.1  Sat Mar 22 2003
+    - Cleaned up documentation.

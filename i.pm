@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.06';
+use vars qw($VERSION); $VERSION = '0.06.1';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -401,13 +401,23 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
 
 =head1 ABSTRACT
 
-This package outputs a (numeric and named) Baha'i date from a standard system time stamp or year, month, day triple.
+This package outputs a (numeric and named) Baha'i date from a standard 
+system time stamp or year, month, day triple.
 
 =head1 DESCRIPTION
 
-The Baha'i year is based on the solar year of 365 days, five hours and some fifty minutes. Each year is divided into nineteen months of nineteen days each with four Intercalary Days (five in a leap year), called Ayyam-i-Ha which Baha'u'llah specified should precede the nineteenth month. New Year's Day (Naw Ruz) falls on the Spring Equinox. This usually occurs on 21 March but if the Equinox falls after sunset on 21 March, Naw Ruz is to be celebrated on 22 March because the Baha'i day begins at sunset.
+The Baha'i year is based on the solar year of 365 days, five hours and
+some fifty minutes. Each year is divided into nineteen months of 
+nineteen days each with four Intercalary Days (five in a leap year), 
+called Ayyam-i-Ha which Baha'u'llah specified should precede the 
+nineteenth month. New Year's Day (Naw Ruz) falls on the Spring 
+Equinox. This usually occurs on 21 March but if the Equinox falls 
+after sunset on 21 March, Naw Ruz is to be celebrated on 22 March 
+because the Baha'i day begins at sunset.
 
-The names of the months in the Baha'i (Badi) calendar were given by the Bab, who drew them from the nineteen names of God invoked in a prayer said during the month of fasting in Shi'ih Islam. They are:
+The names of the months in the Baha'i (Badi) calendar were given by 
+the Bab, who drew them from the nineteen names of God invoked in a 
+prayer said during the month of fasting in Shi'ih Islam. They are:
 
   1.  Baha      - Splendour (21 March - 8 April)
   2.  Jalal     - Glory (9 April - 27 April)
@@ -440,19 +450,34 @@ The days of the Baha'i week are;
   6. Istijlal - Majesty (Thursday)
   7. Istiqlal - Independence (Friday)
 
-The Baha'i day of rest is Isiqlal (Friday) and the Baha'i day begins and ends at sunset.
+The Baha'i day of rest is Isiqlal (Friday) and the Baha'i day begins 
+and ends at sunset.
 
-Each of the days of the month is also given the name of one of the attributes of God. The names are the same as those of the nineteen months. Thus Naw-Ruz, the first day of the first month, would be considered the 'day of Baha of the month Baha'. If it fell on a Saturday, the first day of the Baha'i week, it would be the 'day of jalal'.
+Each of the days of the month is also given the name of one of the 
+attributes of God. The names are the same as those of the nineteen 
+months. Thus Naw-Ruz, the first day of the first month, would be 
+considered the 'day of Baha of the month Baha'. If it fell on a 
+Saturday, the first day of the Baha'i week, it would be the 'day of 
+jalal'.
 
 Ayyam-i-Ha
 
-Literally, Days of Ha (i.e. the letter Ha, which in the abjad system has the numerical value of 5). Intercalary Days. The four days (five in a leap year) before the last month of the Baha'a year, 'Ala', which is the month of fasting. Baha'u'llah designated the Intercalary days as Ayyam-i-Ha in the Kitab-i-Aqdas and specified when they should be observed; the Bab left this undefined. The Ayyam-i-Ha are devoted to spiritual preparation for the fast, hospitality, feasting, charity and gift giving.  
+Literally, Days of Ha (i.e. the letter Ha, which in the abjad system 
+has the numerical value of 5). Intercalary Days. The four days (five 
+in a leap year) before the last month of the Baha'a year, 'Ala', which
+is the month of fasting. Baha'u'llah designated the Intercalary days 
+as Ayyam-i-Ha in the Kitab-i-Aqdas and specified when they should be 
+observed; the Bab left this undefined. The Ayyam-i-Ha are devoted to 
+spiritual preparation for the fast, hospitality, feasting, charity and
+gift giving.  
 
 The Cycles (Vahid)
 
-In His Writings, the Bab divided the years following the date of His Revelation into cycles of nineteen years each.
+In His Writings, the Bab divided the years following the date of His 
+Revelation into cycles of nineteen years each.
 
-Each cycle of nineteen years is called a Vahid. Nineteen cycles constitute a period called Kull-i-Shay.
+Each cycle of nineteen years is called a Vahid. Nineteen cycles 
+constitute a period called Kull-i-Shay.
 
 The names of the years in each cycle are: 
 
@@ -476,11 +501,21 @@ The names of the years in each cycle are:
   18. Abha   - Most Luminous
   19. Vahid  - Unity
 
-There are eleven Holy Days which Baha'is celebrate. On [many] of these days, all work should cease. They are listed in chronological order according to the Baha'i calendar.
+There are eleven Holy Days which Baha'is celebrate. On [many] of these
+days, all work should cease. They are listed in chronological order 
+according to the Baha'i calendar.
 
 * Naw Ruz - March 21
 
-Literally, New Day. The Baha'i New Year. Like the ancient Persian New Year, it occurs on the spring equinox, which generally falls on 21 March. If the equinox falls after sunset on 21 March, Naw Ruz is celebrated on 22 March, since the Baha'i day begins at sunset. For the present, however, the celebration of Naw Ruz is fixed on 21 March. In the Baha'i calandar, Naw Ruz falls on the day of Baha of the month of Baha. The Festival of Naw Ruz marks the end of the month of fasting and is a joyous time of celebration. It is a Baha'i Holy Day on which work is to be suspended.
+Literally, New Day. The Baha'i New Year. Like the ancient Persian New 
+Year, it occurs on the spring equinox, which generally falls on 21 
+March. If the equinox falls after sunset on 21 March, Naw Ruz is 
+celebrated on 22 March, since the Baha'i day begins at sunset. For the
+present, however, the celebration of Naw Ruz is fixed on 21 March. In 
+the Baha'i calandar, Naw Ruz falls on the day of Baha of the month of 
+Baha. The Festival of Naw Ruz marks the end of the month of fasting 
+and is a joyous time of celebration. It is a Baha'i Holy Day on which 
+work is to be suspended.
 
 * Ridvan
 
@@ -488,7 +523,9 @@ Literally, New Day. The Baha'i New Year. Like the ancient Persian New Year, it o
   Ninth Day   - 29 April
   Twelfth Day -  2 May
 
-The Ridvan (pronouced "riz-wan") festival commemorates the first public declaration by Baha'u'llah of His Station and mission (in 1863).
+The Ridvan (pronouced "riz-wan") festival commemorates the first 
+public declaration by Baha'u'llah of His Station and mission (in 
+1863).
 
 * Declaration of the Bab - 23 May
 
@@ -500,7 +537,8 @@ Commemorates the date in 1892 when Baha'u'llah passed away.
 
 * Martyrdom of the Bab - 9 July
 
-Commemorates the date in 1850 when the Bab was executed by a 750-man firing squad in Tabriz, Ira.
+Commemorates the date in 1850 when the Bab was executed by a 750-man 
+firing squad in Tabriz, Ira.
 
 * Birth of the Bab - 20 October
 
@@ -514,7 +552,8 @@ Commemorates the date in 1817 when Baha'u'llah was born in Tihran, Iran
 
 * Day of the Covenant - 26 November
 
-This day is celebrated in lieu of the Birth of 'Abdu'l-Baha, which falls on the same day as the Declaration of the Bab.
+This day is celebrated in lieu of the Birth of 'Abdu'l-Baha, which 
+falls on the same day as the Declaration of the Bab.
 
 * Ascension of 'Abdu'l-Baha - 28 November
 
@@ -522,11 +561,17 @@ Commemorates the day in 1921 when 'Abdu'l-Baha passed away.
 
 * Ayyam-i-Ha - the Intercalary Days - 26 February - 1 March
 
-The Baha'i calendar is made up of 19 months of 19 days each. The period of Ayyam-i-Ha adjusts the Baha'i year to the solar cycle. These days are set aside for hospitality, gift-giving, special acts of charity, and preparing for the Baha'i Fast.
+The Baha'i calendar is made up of 19 months of 19 days each. The 
+period of Ayyam-i-Ha adjusts the Baha'i year to the solar cycle. These
+days are set aside for hospitality, gift-giving, special acts of 
+charity, and preparing for the Baha'i Fast.
 
 * The Fast - 'Ala - Loftiness (month 19) / 2-20 March
 
-Baha'is fast for 19 days from sunrise to sunset, setting aside time for prayer and meditation. Children under the age of 15, individuals who are ill, travelers, the elderly, pregnant women and nursing mothers are exempt from the fast.
+Baha'is fast for 19 days from sunrise to sunset, setting aside time 
+for prayer and meditation. Children under the age of 15, individuals 
+who are ill, travelers, the elderly, pregnant women and nursing 
+mothers are exempt from the fast.
 
 Text taken from
 
@@ -536,13 +581,37 @@ Baha'i Calendar
 
 (days start on the evening before the Gregorian date given)
 
-This new calendar was instituted by the Baha'i spiritual leader Baha'u'llah, who stated that it should begin in the Gregorian year 1844 at the (northern) Spring equinox, which is the traditional Iranian New Year. According to calendars rules, the year begins at the sunset following the equinox, but up to now the practice in the West has been to start the year at sunset on 20 March. This is usually shown as 21 March, with the understanding that the day begins on the evening before. In the Middle East, Baha'is start the year at the sunset in Tehran following the equinox, and the Baha'i Universal House of Justice has not yet decided on the rules of the calendar to be used by all (Reingold and Dershowitz: Calendrical Calculations 2001). For now, I present the calendar as used in the West.
+This new calendar was instituted by the Baha'i spiritual leader 
+Baha'u'llah, who stated that it should begin in the Gregorian year 
+1844 at the (northern) Spring equinox, which is the traditional 
+Iranian New Year. According to calendars rules, the year begins at the
+sunset following the equinox, but up to now the practice in the West 
+has been to start the year at sunset on 20 March. This is usually 
+shown as 21 March, with the understanding that the day begins on the 
+evening before. In the Middle East, Baha'is start the year at the 
+sunset in Tehran following the equinox, and the Baha'i Universal House
+of Justice has not yet decided on the rules of the calendar to be used
+by all (Reingold and Dershowitz: Calendrical Calculations 2001). For 
+now, I present the calendar as used in the West.
 
-Baha'u'llah proclaimed the fulfillment of all religions and the unity of humankind, and the calendar is designed to be a world calendar, (relatively) free of cultural baggage. It is an entirely solar calendar, without even the vestige of previously lunar months as in the Gregorian Calendar. It has nineteen months of nineteen days, with some extra days before the last month. The cycle of 19 names is used for the names of both the months and the days.
+Baha'u'llah proclaimed the fulfillment of all religions and the unity 
+of humankind, and the calendar is designed to be a world calendar, 
+(relatively) free of cultural baggage. It is an entirely solar 
+calendar, without even the vestige of previously lunar months as in 
+the Gregorian Calendar. It has nineteen months of nineteen days, with 
+some extra days before the last month. The cycle of 19 names is used 
+for the names of both the months and the days.
 
-The Vahid is a period of 19 years, and a Kull-i-Shay is 19 Vahids (361 years). These cycles have another set of names: Alif (A,1), Ba (B,2), Ab (Father,3), Dal (D,4), Bab (Gate,5), Vav (V,6), Abad (Eternity,7), Jad (Generosity,8), Baha (Splendour,9), Hubb (Love,10), Bahhaj (Delightful,11), Javab (Answer,12), Ahad (Single,13), Vahhab (Bountiful,14), Vidad (Affection,15), Badi (Beginning,16), Bahi (Luminous,17), Abha (Most Luminous,18), Vahid (Unity,19).
+The Vahid is a period of 19 years, and a Kull-i-Shay is 19 Vahids (361
+years). These cycles have another set of names: Alif (A,1), Ba (B,2), 
+Ab (Father,3), Dal (D,4), Bab (Gate,5), Vav (V,6), Abad (Eternity,7), 
+Jad (Generosity,8), Baha (Splendour,9), Hubb (Love,10), Bahhaj 
+(Delightful,11), Javab (Answer,12), Ahad (Single,13), Vahhab 
+(Bountiful,14), Vidad (Affection,15), Badi (Beginning,16), Bahi 
+(Luminous,17), Abha (Most Luminous,18), Vahid (Unity,19).
 
-The weekly seven day cycle is still used, and the day of rest is Friday.
+The weekly seven day cycle is still used, and the day of rest is 
+Friday.
 
 Text taken from
 
@@ -557,9 +626,13 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
       %args,
   )
 
-This function returns a hash of the Baha'i date names and numbers from a system or user provided time () stamp.  The extra arguments are used for the as_string () function, detailed below.
+This function returns a hash of the Baha'i date names and numbers from
+a system or user provided time () stamp.  The extra arguments are used
+for the as_string () function, detailed below.
 
-In a scalar context, this function returns a string sentence with the numeric and named Baha'i date.  In an array context, it returns a hash with the following keys:
+In a scalar context, this function returns a string sentence with the 
+numeric and named Baha'i date.  In an array context, it returns a hash
+with the following keys:
 
   kull_i_shay
   cycle
@@ -582,9 +655,12 @@ In a scalar context, this function returns a string sentence with the numeric an
       %args,
   );
 
-Compute the Baha'i date from a Gregorian year, month, day triple.  The extra arguments are used for the as_string () function, detailed below.
+Compute the Baha'i date from a Gregorian year, month, day triple.  The
+extra arguments are used for the as_string () function, detailed below.
 
-In a scalar context, this function returns a string sentence with the numeric and named Baha'i date.  In an array context, it returns the date () hash (described above).
+In a scalar context, this function returns a string sentence with the 
+numeric and named Baha'i date.  In an array context, it returns the 
+date () hash (described above).
 
 =head2 as_string
 
@@ -650,8 +726,7 @@ Here are some handy examples:
   7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay
 
   long alpha-numeric with TZ:
-  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay, with t
-imezone offset of negative six hours
+  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay, with timezone offset of negative six hours
 
 =head2 cycles
 
@@ -669,7 +744,8 @@ Return the 19 year names as an array.
 
   @months = months ();
 
-Return the 19 month names as an array, along with the intercalary days ("Ayyam-i-Ha") as the last element.
+Return the 19 month names as an array, along with the intercalary days
+("Ayyam-i-Ha") as the last element.
 
 =head2 days
 
@@ -687,11 +763,13 @@ Return the 7 day-of-the-week names as an array.
 
   @days = holy_days ();
 
-Return the holy days as a hash where the keys are the holy day names and the values are array references.  These array references are composed of two or three elements, where the first is the month, the second is the day, and the third is the (optional) number of days observed.  These dates are currently in standard (non-Baha'i) format.
+Return the holy days as a hash where the keys are the holy day names 
+and the values are array references.  These array references are 
+composed of two or three elements, where the first is the month, the 
+second is the day, and the third is the (optional) number of days 
+observed.  These dates are currently in standard (non-Baha'i) format.
 
 =head1 DEPENDENCIES
-
-L<Carp>
 
 L<Date::Calc>
 
@@ -701,17 +779,18 @@ L<Lingua::Num2Word>
 
 =head1 TO DO
 
-Overload localtime () and gmtime () just to be cool?
+Convert to Gregorian dates and Unix time stamps from Baha'i dates.
+
+Base the date computation on the time of day (the Baha'i day begins at 
+Sunset).
 
 Add the current holy day to the date, if the day is on one.
 
-Convert to Gregorian dates and Unix time stamps from Baha'i dates.
-
-Base the date computation on the time of day (the Baha'i day begins at Sunset).
+Add a next_holy_day () function?
 
 Output unicode.
 
-Add a next_holy_day () function?
+Overload localtime () and gmtime () just to be cool?
 
 =head1 DEDICATION
 
