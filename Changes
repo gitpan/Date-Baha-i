@@ -45,3 +45,11 @@ Revision history for Perl extension Date::Baha::i.
       given scalar context for the date () and greg_to_bahai ()
       functions.
     - Updated test suite accordingly.
+
+0.06  Fri Mar 21 2003 - Naw Ruz!
+    - Oof!  Corrected the year calculation.
+    - Exported the as_string () function.
+    - Enhanced the as_string () function with diverse output
+      representations.
+    - Updated documentation and test suite accordingly.
+    - Made the test suite non-lame.  Yay!

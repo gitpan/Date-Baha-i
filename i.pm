@@ -1,10 +1,11 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.05';
+use vars qw($VERSION); $VERSION = '0.06';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
+    as_string
     cycles
     date
     days
@@ -23,6 +24,7 @@ use Date::Calc qw(
     Timezone
 );
 use Lingua::EN::Numbers::Ordinate;
+use Lingua::Num2Word;
 
 # Set constants {{{
 use constant FACTOR => 19;
@@ -115,9 +117,10 @@ sub holy_days { return HOLY_DAYS }
 
 # date function {{{
 sub date {
-    my $t = shift;
-    my ($year, $month, $day) = $t
-        ? (localtime($t))[5,4,3]
+    my %args = @_;
+
+    my ($year, $month, $day) = $args{timestamp}
+        ? (localtime($args{timestamp}))[5,4,3]
         : (localtime)[5,4,3];
 
     # This is what will eventually be used in the return.
@@ -173,16 +176,109 @@ sub date {
     }
 
     # Build the date hash to return.
-    return _build_date ($year, $month, $day, $bahai_month, $bahai_day);
+    return _build_date (
+        $year, $month, $day, $bahai_month, $bahai_day,
+        %args
+    );
 }
 # }}}
 
 # greg_to_bahai function {{{
 sub greg_to_bahai {
-    my ($y, $m, $d) = @_;
+    my ($y, $m, $d, %args) = @_;
     # It would seem that Date::Calc::Date_to_Time (and Time_to_Date)
     # is broken wrt the day.  "+ 1"?  WTF?
-    return date (Date_to_Time ($y, $m, $d + 1, 0, 0, 0));
+    return date (Date_to_Time ($y, $m, $d + 1, 0, 0, 0), %args);
+}
+# }}}
+
+# as_string function {{{
+# XXX With Lingua::Num2Word, naively assume that we only care about English.
+sub as_string {
+    my ($date_hash, %args) = @_;
+
+    $args{size}     = 1 unless defined $args{size};
+    $args{numeric}  = 0 unless defined $args{numeric};
+    $args{alpha}    = 1 unless defined $args{alpha};
+    $args{timezone} = 0 unless defined $args{timezone};
+
+    my $date;
+
+    if (!$args{size} && $args{numeric} && $args{alpha}) {
+        # short alpha-numeric
+        $date .= sprintf '%s (%d), %s (%d) of %s (%d), year %d, %s (%d) of %s (%d)',
+            @$date_hash{qw(
+                dow_name dow day_name day month_name month
+                year year_name cycle_year cycle_name cycle
+            )};
+    }
+    elsif ($args{size} && $args{numeric} && $args{alpha}) {
+        # long alpha-numeric
+        $date .= sprintf '%s week day %s, %s day %s of the %s month %s, year %s (%d), %s year %s of the %s vahid %s of the %s kull-i-shay',
+            ordinate ($date_hash->{dow}), $date_hash->{dow_name},
+            ordinate ($date_hash->{day}), $date_hash->{day_name},
+            ordinate ($date_hash->{month}), $date_hash->{month_name},
+            lc (Lingua::Num2Word::cardinal ('en', $date_hash->{year})),
+            $date_hash->{year},
+            ordinate ($date_hash->{cycle_year}),
+            $date_hash->{year_name},
+            ordinate ($date_hash->{cycle}),
+            $date_hash->{cycle_name},
+            ordinate ($date_hash->{kull_i_shay});
+    }
+    elsif (!$args{size} && $args{numeric}) {
+        # short numeric
+        $date .= sprintf '%s, %s/%s/%s',
+            @$date_hash{qw(dow month day year)};
+    }
+    elsif ($args{size} && $args{numeric}) {
+        # long numeric
+        $date .= sprintf '%s day of the week, %s day of the %s month, year %s, %s year of the %s vahid of the %s kull-i-shay',
+            ordinate ($date_hash->{dow}),
+            ordinate ($date_hash->{day}),
+            ordinate ($date_hash->{month}),
+            $date_hash->{year},
+            ordinate ($date_hash->{cycle_year}),
+            ordinate ($date_hash->{cycle}),
+            ordinate ($date_hash->{kull_i_shay});
+    }
+    elsif (!$args{size} && $args{alpha}) {
+        # short alpha
+        $date .= sprintf '%s, %s of %s, %s of %s',
+            @$date_hash{qw(
+                dow_name month_name day_name year_name cycle_name
+            )};
+    }
+    else {
+        # long alpha
+        $date .= sprintf 'week day %s, day %s of month %s, year %s of year %s of the vahid %s of the %s kull-i-shay',
+            @$date_hash{qw(dow_name day_name month_name)},
+            lc (Lingua::Num2Word::cardinal ('en', $date_hash->{year})),
+            @$date_hash{qw(year_name cycle_name)},
+            ordinate ($date_hash->{kull_i_shay});
+    }
+
+    if ($args{timezone}) {
+        #long numeric, short alpha: , TZ -6h
+        if (($args{size} && $args{numeric} && !$args{alpha})
+            ||
+            (!$args{size} && !$args{numeric} && $args{alpha})
+        ) {
+            $date .= ", TZ $date_hash->{timezone}h";
+        }
+        #long alpha: , with timezone offset of negative six hours
+        elsif ($args{size} && $args{alpha}) {
+            $date .= ', with timezone offset of ' .
+                lc (Lingua::Num2Word::cardinal ('en', $date_hash->{timezone})) .
+                ' hours';
+        }
+        #short numeric: , -6
+        else {
+            $date .= ", $date_hash->{timezone}";
+        }
+    }
+
+    return $date;
 }
 # }}}
 
@@ -228,7 +324,7 @@ sub _ninteen_days {
 }
 
 sub _build_date {
-    my ($year, $month, $day, $new_month, $new_day) = @_;
+    my ($year, $month, $day, $new_month, $new_day, %args) = @_;
 
     my %date;
     @date{qw(month day)} = ($new_month, $new_day);
@@ -247,7 +343,18 @@ sub _build_date {
     $date{month}++ unless $date{month} == -1;
 
     # Set the year.
-    $date{year} = $year - FIRST_YEAR;
+    # NOTE: This, as of yet, cryptic algorithm lifted from Arman
+    # Danesh's "bahaidate".
+    if (($month < MARCH) 
+        ||
+        ($month == MARCH && $day < YEAR_START_DAY)
+    ) {
+        $date{year} = $year - FIRST_YEAR;
+    }
+    else {
+        $date{year} = $year - (FIRST_YEAR - 1);
+    }
+
     $date{year_name} = (CYCLE_YEAR)[($date{year} - 1) % FACTOR];
     $date{cycle_year} = $date{year} % FACTOR;
 
@@ -262,29 +369,7 @@ sub _build_date {
     # ($D_y,$D_m,$D_d, $Dh,$Dm,$Ds, $dst) = Timezone ();
     $date{timezone} = (Timezone ())[3];
 
-    return wantarray ? %date : _as_string (%date);
-}
-
-# kull_i_shay'th kull-i-shay,
-# cycle'th vahid (cycle_name),
-# cycle_year'th year of the vahid, 
-# year'th year (year_name),
-# month'th month of the year (month_name),
-# day'th day of the month (day_name),
-# dow'th day of the week (dow_name),
-# with time zone offset of timezone
-sub _as_string {
-    my %date = @_;
-    my $date =
-        ordinate ($date{kull_i_shay}) . ' kull-i-shay, ' .
-        ordinate ($date{cycle})       . " vahid ($date{cycle_name}), " .
-        ordinate ($date{cycle_year})  . ' year of the vahid, ' .
-        ordinate ($date{year})        . " year ($date{year_name}), " .
-        ordinate ($date{month})       . " month of the year ($date{month_name}), " .
-        ordinate ($date{day})         . " day of the month ($date{day_name}), " .
-        ordinate ($date{dow})         . " day of the week ($date{dow_name}), " .
-        "with time zone offset of $date{timezone} hours";
-    return $date;
+    return wantarray ? %date : as_string (\%date, %args);
 }
 # }}}
 
@@ -304,6 +389,8 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
 
   %bahai_date = greg_to_bahai ($year, $month, $day);
   $bahai_date = greg_to_bahai ($year, $month, $day);
+
+  $bahai_date = as_string (\%bahai_date);
 
   @ret = cycles ();
   @ret = years ();
@@ -465,9 +552,12 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 
 =head2 date
 
-  %bahai_date = date ([time])
+  %bahai_date = date (
+      timestamp => $timestamp,
+      %args,
+  )
 
-This function returns a hash of the Baha'i date names and numbers from a system or user provided time () stamp.
+This function returns a hash of the Baha'i date names and numbers from a system or user provided time () stamp.  The extra arguments are used for the as_string () function, detailed below.
 
 In a scalar context, this function returns a string sentence with the numeric and named Baha'i date.  In an array context, it returns a hash with the following keys:
 
@@ -487,11 +577,81 @@ In a scalar context, this function returns a string sentence with the numeric an
 
 =head2 greg_to_bahai
 
-  %bahai_date = greg_to_bahai ($year, $month, $day);
+  %bahai_date = greg_to_bahai (
+      $year, $month, $day,
+      %args,
+  );
 
-Compute the Baha'i date from a Gregorian year, month, day triple.
+Compute the Baha'i date from a Gregorian year, month, day triple.  The extra arguments are used for the as_string () function, detailed below.
 
 In a scalar context, this function returns a string sentence with the numeric and named Baha'i date.  In an array context, it returns the date () hash (described above).
+
+=head2 as_string
+
+  $date = as_string (
+      \%bahai_date,
+      size     => $size,
+      alpha    => $alpha,
+      numeric  => $numeric,
+      timezone => $timezone,
+  );
+
+Return the Baha'i date as a friendly string.
+
+This function takes a Baha'i date hash and Boolean arguments that 
+determine the format of the output.
+
+The "size" argument toggles between short and long representations.
+The "timezone" argument toggles the display of the time zone offset.
+As the names imply, the "alpha" and "numeric" flags turn the 
+alphanumeric representations on or off.  The defaults are as follows:
+
+  size     => 1
+  alpha    => 1
+  numeric  => 0
+  timezone => 0
+
+Thus, "long non-numeric alpha without the timezone" is the default 
+representation.
+
+Here are some handy examples:
+
+  short numeric:
+  7, 1/1/159
+
+  short numeric with TZ:
+  7, 1/1/159, -6
+
+  long numeric:
+  7th day of the week, 1st day of the 1st month, year 159, 7th year of the 9th vahid of the 1st kull-i-shay
+
+  long numeric with TZ:
+  7th day of the week, 1st day of the 1st month, year 159, 7th year of the 9th vahid of the 1st kull-i-shay, TZ -6h
+
+  short alpha:
+  Istiqlal, Baha of Baha, Abad of Baha
+
+  short alpha with TZ:
+  Istiqlal, Baha of Baha, Abad of Baha, TZ -6h
+
+  long alpha:
+  week day Istiqlal, day Baha of month Baha, year one hundred fifty nine of year Abad of the vahid Baha of the 1st kull-i-shay
+
+  long alpha with TZ:
+  week day Istiqlal, day Baha of month Baha, year one hundred fifty nine of year Abad of the vahid Baha of the 1st kull-i-shay, with timezone offset of negative six hours
+
+  short alpha-numeric:
+  Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9)
+
+  short alpha-numeric with TZ:
+  Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9), TZ -6h
+
+  long alpha-numeric:
+  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay
+
+  long alpha-numeric with TZ:
+  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay, with t
+imezone offset of negative six hours
 
 =head2 cycles
 
@@ -531,15 +691,19 @@ Return the holy days as a hash where the keys are the holy day names and the val
 
 =head1 DEPENDENCIES
 
+L<Carp>
+
 L<Date::Calc>
 
 L<Lingua::EN::Numbers::Ordinate>
 
-=head1 TODO
+L<Lingua::Num2Word>
 
-Overload localtime() and gmtime().
+=head1 TO DO
 
-Also, add the current holy day to the date, if the day is on one.
+Overload localtime () and gmtime () just to be cool?
+
+Add the current holy day to the date, if the day is on one.
 
 Convert to Gregorian dates and Unix time stamps from Baha'i dates.
 
