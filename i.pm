@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.04.2';
+use vars qw($VERSION); $VERSION = '0.04.3';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -233,7 +233,7 @@ sub _build_date {
     @date{qw(month day)} = ($new_month, $new_day);
 
     # Set the day of the week.
-    $date{dow} = day_of_week ($year, $month, $day);
+    $date{dow} = _day_of_week ($year, $month, $day);
     $date{dow_name} = (DOW_NAME)[$date{dow}];
     $date{dow}++;
 
@@ -497,8 +497,6 @@ Return the 19 day names as an array.
 
 Return the 7 day-of-the-week names as an array.
 
-Return the 
-
 =head2 holy_days
 
   @days = holy_days ();
@@ -525,7 +523,7 @@ Hi Kirsten  : )
 
 =head1 AUTHOR
 
-Gene Boggs, E<lt>cpan@ology.netE<gt>
+Gene Boggs E<lt>cpan@ology.netE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

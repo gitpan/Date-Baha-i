@@ -1,4 +1,4 @@
-Date/Baha/i version 0.04.2
+Date/Baha/i version 0.04.3
 ==========================
 
 INSTALLATION
@@ -12,7 +12,7 @@ To install this module type the following:
 
 DEPENDENCIES
 
-None.
+L<Date::Calc>
 
 COPYRIGHT AND LICENCE
 

@@ -33,3 +33,8 @@ Revision history for Perl extension Date::Baha::i.
     - Fixed export list.
     - Gave _foo type names to "private" functions.
     - Cleaned up documentation.
+
+0.04.2  Thu Mar  6 2003
+    - Oof!  I forgot to test install the package!  Fixed the name of
+      a private function call.
+    - Cleaned up documentation again...
