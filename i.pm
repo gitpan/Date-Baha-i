@@ -1,7 +1,7 @@
-package Date::Baha::i;
+package Date::Baha::i;  # {{{
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.11';
+use vars qw($VERSION); $VERSION = '0.11.1';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -25,6 +25,7 @@ use Date::Calc qw(
 );
 use Lingua::EN::Numbers::Ordinate;
 use Lingua::Num2Word;
+# }}}
 
 # Set constants {{{
 use constant FACTOR => 19;
@@ -116,8 +117,7 @@ sub days_of_the_week { return DOW_NAME }
 sub holy_days { return HOLY_DAYS }
 # }}}
 
-# date function {{{
-sub date {
+sub date {  # {{{
     my %args = @_;
 
     my ($year, $month, $day) = @args{qw(year month day)};
@@ -195,9 +195,9 @@ sub date {
 }
 # }}}
 
-# as_string function {{{
-# XXX With Lingua::Num2Word, naively assume that we only care about English.
-sub as_string {
+sub as_string {  # {{{
+    # XXX With Lingua::Num2Word, naively assume that we only care
+    # about English.
     my ($date_hash, %args) = @_;
 
     $args{size}     = 1 unless defined $args{size};
@@ -286,13 +286,11 @@ sub as_string {
     }
 
     return $date;
-}
-# }}}
+}  # }}}
 
-# next_holy_day function {{{
-# NOTE: We are only concerned with the month/day, so the date year
-# is ignored.
-sub next_holy_day {
+sub next_holy_day {  # {{{
+    # NOTE: We are only concerned with the month/day, so the date year
+    # is ignored.
     my ($year, $month, $day) = @_;
 
     # Make the month and day a pseudo real number.
@@ -316,8 +314,7 @@ sub next_holy_day {
     $holy_date = $sorted[-1] unless $holy_date;
 
     return { $inverted{$holy_date} => [ split /\./, $holy_date ] };
-}
-# }}}
+}  # }}}
 
 # Helper functions {{{
 # The Baha'i week starts on Saturday.
@@ -457,7 +454,7 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
   use Date::Baha'i;
 
   %bahai_date = date ();
-  %bahai_date = date (timestamp => time);
+  %bahai_date = date (timestamp => $secs_since_1970);
   $bahai_date = date (
       year  => $year,
       month => $month,
@@ -622,7 +619,8 @@ Commemorates the date in 1819 when the Bab was born in Shiraz, Iran
 
 * Birth of Baha'u'llah - 12 November
 
-Commemorates the date in 1817 when Baha'u'llah was born in Tihran, Iran
+Commemorates the date in 1817 when Baha'u'llah was born in Tihran, 
+Iran
 
 - Work does not have to cease on these Holy Days:
 
@@ -697,16 +695,30 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 
 =head2 date
 
+  %bahai_date = date ();
   %bahai_date = date (
       timestamp  => $secs_since_1970,
       use_gmtime => $use_gmtime,
       %args,
-  )
+  );
+
+  $bahai_date = date (
+      year  => $year,
+      month => $month,
+      day   => $day,
+      %args,
+  );
 
 This function returns a hash of the Baha'i date names and numbers from
-a system or user provided time () stamp.  Also, this function can be
-forced to use gmtime instead of localtime (the default).  The extra 
-arguments are used for the as_string () function, detailed below.
+either epoch seconds or a year, month, day triple.
+
+If using epoch seconds (timestamp), this function can be forced to
+use gmtime instead of localtime.  If neither a timestamp or ymd 
+triple are given, the system localtime (or gmtime) are used as a 
+default.
+
+The extra arguments are used for the as_string () function, which are 
+detailed below.
 
 In a scalar context, this function returns a string sentence with the 
 numeric and named Baha'i date.  In an array context, it returns a hash
@@ -755,7 +767,7 @@ alphanumeric representations on or off.  The defaults are as follows:
 Thus, "long non-numeric alpha without the timezone" is the default 
 representation.
 
-Here are some handy examples:
+Here are some handy examples (newlines added for readability):
 
   short numeric:
   7, 1/1/159
@@ -764,10 +776,13 @@ Here are some handy examples:
   7, 1/1/159, -6
 
   long numeric:
-  7th day of the week, 1st day of the 1st month, year 159, 7th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz
+  7th day of the week, 1st day of the 1st month, year 159,
+  7th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz
 
   long numeric with TZ:
-  7th day of the week, 1st day of the 1st month, year 159, 7th year of the 9th vahid of the 1st kull-i-shay, TZ -6h, holy day: Naw Ruz
+  7th day of the week, 1st day of the 1st month, year 159,
+  7th year of the 9th vahid of the 1st kull-i-shay, TZ -6h,
+  holy day: Naw Ruz
 
   short alpha:
   Istiqlal, Baha of Baha, Abad of Baha
@@ -776,28 +791,40 @@ Here are some handy examples:
   Istiqlal, Baha of Baha, Abad of Baha, TZ -6h
 
   long alpha:
-  week day Istiqlal, day Baha of month Baha, year one hundred fifty nine of year Abad of the vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
+  week day Istiqlal, day Baha of month Baha,
+  year one hundred fifty nine of year Abad of the vahid Baha of the
+  1st kull-i-shay, holy day: Naw Ruz
 
   long alpha with TZ:
-  week day Istiqlal, day Baha of month Baha, year one hundred fifty nine of year Abad of the vahid Baha of the 1st kull-i-shay, with timezone offset of negative six hours, holy day: Naw Ruz
+  week day Istiqlal, day Baha of month Baha,
+  year one hundred fifty nine of year Abad of the vahid Baha of the
+  1st kull-i-shay, with timezone offset of negative six hours,
+  holy day: Naw Ruz
 
   short alpha-numeric:
   Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9)
 
   short alpha-numeric with TZ:
-  Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9), TZ -6h
+  Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9),
+  TZ -6h
 
   long alpha-numeric:
-  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
+  7th week day Istiqlal, 1st day Baha of the 1st month Baha,
+  year one hundred fifty nine (159), 7th year Abad of the
+  9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
 
   long alpha-numeric with TZ:
-  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay, with timezone offset of negative six hours, holy day: Naw Ruz
+  7th week day Istiqlal, 1st day Baha of the 1st month Baha,
+  year one hundred fifty nine (159), 7th year Abad of the
+  9th vahid Baha of the 1st kull-i-shay,
+  with timezone offset of negative six hours, holy day: Naw Ruz
 
 =head2 next_holy_day
 
-  %holy_day = next_holy_day ($year, $month, $day)
+  %holy_day = next_holy_day ($year, $month, $day);
 
-This function returns the first holy day after the provided date triple.
+This function returns the first holy day after the provided date
+triple.
 
 The return is a hash reference with a single key (the name of the
 holy day) and an two element array reference of [month, day] as the 

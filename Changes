@@ -96,3 +96,6 @@ Revision history for Perl extension Date::Baha::i.
     - Corrected the off-by-one error in the _invert_holy_days()
       function.
     - Updated the test script, accordingly.
+
+0.11.1  Wed Apr 30 2003
+    - Cleaned and fixed documentation.
