@@ -1,13 +1,12 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.04.1';
+use vars qw($VERSION); $VERSION = '0.04.2';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
     cycles
     date
-    day_of_week
     days
     days_of_the_week
     greg_to_bahai
@@ -135,11 +134,15 @@ sub date {
 
     # Loop through all the official months, less two.
     for my $n (0 .. FACTOR - 2) {
-        my ($my_y, $my_m, $my_d) = ninteen_days ($year, $m, $d);
+        my ($my_y, $my_m, $my_d) = _ninteen_days ($year, $m, $d);
 
         # Have we found our month?
-        if ($found = in_month_span ($month, $day, $m, $d, $my_m, $my_d)) {
-            $bahai_day = delta_month_days ($m, $d - 1, $year, $month, $day);
+        if ($found = _in_month_span (
+                $month, $day, $m, $d, $my_m, $my_d)
+        ) {
+            $bahai_day = _delta_month_days (
+                $m, $d - 1, $year, $month, $day
+            );
             $bahai_month = $n;
             last;
         }
@@ -150,17 +153,21 @@ sub date {
 
     # If we haven't found our month, check 'Ala.
     if (!$found &&
-        ($found = in_month_span (
-            $month, $day, MARCH, LAST_START_DAY, MARCH, YEAR_START_DAY - 1
-         ))
+        ($found = _in_month_span (
+            $month, $day, MARCH, LAST_START_DAY, MARCH, YEAR_START_DAY - 1)
+        )
     ) { 
-        $bahai_day = delta_month_days (MARCH, LAST_START_DAY - 1, $year, $month, $day);
+        $bahai_day = _delta_month_days (
+            MARCH, LAST_START_DAY - 1, $year, $month, $day
+        );
         $bahai_month = FACTOR - 1;
     }   
 
     # If we still didn't find a month, it is Ayyam-i-Ha!
     unless ($found) {
-        $bahai_day = delta_month_days (FEBRUARY, LEAP_START_DAY - 1, $year, $month, $day);
+        $bahai_day = _delta_month_days (
+            FEBRUARY, LEAP_START_DAY - 1, $year, $month, $day
+        );
         $bahai_month = -1;
     }
 
@@ -180,7 +187,7 @@ sub greg_to_bahai {
 
 # Helper functions {{{
 # The Baha'i week starts on Saturday.
-sub day_of_week {
+sub _day_of_week {
     my ($y, $m, $d) = @_;
     my $standard = Day_of_Week ($y, $m, $d);
     $standard++;
@@ -189,7 +196,7 @@ sub day_of_week {
 
 # Compute the number of days between consecutive months.
 # In our case, it's, "How many days are we into this Baha'i month?"
-sub delta_month_days {
+sub _delta_month_days {
     my ($m1, $d1, $y2, $m2, $d2) = @_;
     # If Dec-Jan, get the next year.
     my $y1 = $m1 == 12 && $m2 == 1 ? $y2 + 1 : $y2;
@@ -197,7 +204,7 @@ sub delta_month_days {
 }
 
 # What month are we in?
-sub in_month_span {
+sub _in_month_span {
     my ($m, $d, $m1, $d1, $m2, $d2) = @_;
     # If the months are the same, just check the day range.
     if ($m1 == $m2 && $m == $m1) {
@@ -214,7 +221,7 @@ sub in_month_span {
 }
 
 # Return  the standard date ninteen days hence.
-sub ninteen_days {
+sub _ninteen_days {
     my ($y, $m, $d) = @_;
     return Add_Delta_Days($y, $m, $d - 1, FACTOR)
 }
@@ -430,7 +437,7 @@ Text taken from
 
 L<http://www.moonwise.co.uk/year/159bahai.htm>
 
-=head1 FUNCTIONS
+=head1 EXPORTED FUNCTIONS
 
 =head2 date
 
@@ -504,7 +511,7 @@ L<Date::Calc>
 
 =head1 TODO
 
-Overload localtime() and gmtime?
+Overload localtime() and gmtime().
 
 Convert between Gregorian dates/Unix timestamps and Baha'i dates.
 
