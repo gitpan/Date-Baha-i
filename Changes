@@ -9,3 +9,10 @@ Revision history for Perl extension Date::Baha::i.
     - Moved the final date computations to a seperate, private
       subroutine.
     - Fixed feeble, broken test case.
+
+0.03  Wed Mar  5 2003
+    - Added a time zone offset key to the date () return.
+    - Made date () return a hash, instead of a hasref.
+    - Added functions to return the names of cycles, years, months,
+      days, the days of the week, and hold days.
+    - Updated the test suite, of course.

@@ -3,8 +3,8 @@ package Date::Baha::i;
 use strict;
 #use base qw(Exporter);
 #use vars qw($@EXPORT @EXPORT_OK);
-#@EXPORT = @EXPORT_OK = qw(bahai_date);
-use vars qw($VERSION); $VERSION = '0.02';
+#@EXPORT = @EXPORT_OK = qw(date);
+use vars qw($VERSION); $VERSION = '0.03';
 use Date::Calc qw(
     Add_Delta_Days
     Day_of_Week
@@ -73,6 +73,32 @@ use constant DOW_NAME => qw(
     Istijlal
     Istiqlal
 );
+use constant HOLY_DAYS => (
+    # Work suspended:
+    "Naw Ruz" => [3, 21],
+    "First Day of Ridvan" => [4, 21],
+    "Ninth Day of Ridvan" => [4, 29],
+    "Twelfth Day of Ridvan" => [5, 2],
+    "Declaration of the Bab" => [5, 23],
+    "Ascension of Baha'u'llah" => [5, 29],
+    "Martyrdom of the Bab" => [7, 9],
+    "Birth of the Bab" => [10, 20],
+    "Birth of Baha'u'llah" => [11, 12],
+    # Work not suspended:
+    "Day of the Covenant" => [11, 26],
+    "Ascension of 'Abdu'l-Baha" => [11, 28],
+    "Ayyam-i-Ha" => [2, 26, 4],
+    "The Fast" => [3, 2, 19],
+);
+# }}}
+
+# List return functions {{{
+sub cycles { return CYCLE_YEAR }
+sub years { return CYCLE_YEAR }
+sub months { return MONTH_DAY }
+sub days { return (MONTH_DAY)[0 .. 18] }
+sub days_of_the_week { return DOW_NAME }
+sub holy_days { return HOLY_DAYS }
 # }}}
 
 # date function {{{
@@ -126,7 +152,7 @@ sub date {
         $bahai_month = -1;
     }
 
-    # Build the date hashref to return.
+    # Build the date hash to return.
     return _build_date ($year, $month, $day, $bahai_month, $bahai_day);
 }
 # }}}
@@ -203,9 +229,11 @@ sub _build_date {
     # Set the Kull-i-Shay.
     $date{kull_i_shay} = int ($date{cycle} / FACTOR) + 1;
 
-#    $date{timezone} = [ Timezone () ];
+    # Naively assume only the hour item is the TZ offset.
+    # ($D_y,$D_m,$D_d, $Dh,$Dm,$Ds, $dst) = Timezone ();
+    $date{timezone} = (Timezone ())[3];
 
-    return \%date;
+    return %date;
 }
 
 # }}}
@@ -219,9 +247,7 @@ Date::Baha'i - Compute the numeric and named Baha'i date.
 
 =head1 SYNOPSIS
 
-  use Date::Baha'i;
-
-  $date_hash = bahai_date ();
+  %bahai_date = Date::Baha'i::date ();
 
 =head1 ABSTRACT
 
@@ -374,13 +400,13 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 
 =head1 FUNCTIONS
 
-=head2 bahai_date
+=head2 date
 
-  bahai_date ()
+  %bahai_date = Date::Baha::i::date ()
 
-This function returns a hash reference of the date names and numbers from a time() stamp.
+This function returns a hash of the date names and numbers from a system time() stamp.
 
-The hashref returned has these keys:
+The hash returned has these keys:
 
   kull_i_shay
   cycle
@@ -394,6 +420,27 @@ The hashref returned has these keys:
   day_name
   dow
   dow_name
+  timezone
+
+=head2 cycles
+
+Return the 19 cycle names as an array.
+
+=head2 years
+
+Return the 19 year names as an array.
+
+=head2 months
+
+Return the 19 month names as an array, along with  the intercalary days ("Ayyam-i-Ha") as the last element.
+
+=head2 days
+
+Return the 19 day names as an array.
+
+=head2 holy_days
+
+Return the holy days as a hash where the keys are the holy day names and the values are array references.  These array references are composed of two or three elements, where the first is the month, the second is the day, and the third is the (optional) number of days observed.  These dates are currently in standard (non-Baha'i) format.
 
 =head1 DEPENDENCIES
 
@@ -401,13 +448,9 @@ None.
 
 =head1 TODO
 
-Overload localtime().
-
-Compute the timezone.
+Overload localtime() and gmtime?
 
 Convert between Julian dates/Unix timestamps and Baha'i dates.
-
-Return lists of months, days, and years, cycles, holy days, etc.
 
 Base the date computation on the time of day (the Baha'i day begins at Sunset).
 
