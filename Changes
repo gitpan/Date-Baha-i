@@ -125,3 +125,6 @@ Revision history for Perl extension Date::Baha::i.
     - Fixed and enhanced documentation.
     - Retooled the test suite to test every date in a Baha'i year for
       the to_bahai and from_bahai functions.
+
+0.12.1  
+    - Corrected documentation.

@@ -2,7 +2,7 @@ package Date::Baha::i;
 
 # Package declarations {{{
 use strict;
-use vars qw($VERSION); $VERSION = '0.12';
+use vars qw($VERSION); $VERSION = '0.12.1';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -449,7 +449,7 @@ __END__
 
 =head1 NAME
 
-Date::Baha::i - Compute the numeric and named Baha'i date.
+Date::Baha::i - Convert to and from Baha'i dates.
 
 =head1 SYNOPSIS
 
@@ -471,19 +471,20 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
       day   => $day,
   );
 
-  ($year, $month, $day) = from_bahai (
-      year  => $bahai_year,
-      month => $bahai_month,
-      day   => $bahai_day,
-  );
   $date = from_bahai (
       year  => $bahai_year,
       month => $bahai_month,
       day   => $bahai_day,
   );
 
-  %holy_day = next_holy_day ($year, $month, $day);
+  ($year, $month, $day) = from_bahai (
+      year  => $bahai_year,
+      month => $bahai_month,
+      day   => $bahai_day,
+  );
+
   $holy_day = next_holy_day ($year, $month, $day);
+  %holy_day = next_holy_day ($year, $month, $day);
 
   @cycles = cycles ();
   @years = years ();
@@ -494,15 +495,16 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
 
 =head1 ABSTRACT
 
-This package outputs a (numeric and named) Baha'i date from a standard 
-epoch time stamp or year, month, day triple.
+This package converts between Baha'i and standard dates.
 
 =head1 DESCRIPTION
 
 This package renders the Baha'i date from two standard date formats -
-epoch time and the Gregorian year/month/day triple.  It is not a date
-arithmetic calculator or two-way converter.  It simply takes a
-standard date and converts it to the Baha'i representation.
+epoch time and a year/month/day triple.  It also converts a Baha'i 
+date to standard ymd format.
+
+This package is not a date arithmetic calculator.  It simply takes a 
+standard or Baha'i date and converts it to the reverse representation.
 
 The Baha'i year is based on the solar year of 365 days, five hours and
 some fifty minutes. Each year is divided into nineteen months of 
@@ -718,20 +720,6 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 
 =head2 to_bahai
 
-  # Return a hash in array context.
-  %bahai_date = to_bahai ();
-  %bahai_date = to_bahai (
-      epoch => time,
-      use_gmtime => $use_gmtime,
-      %args,
-  );
-  %bahai_date = to_bahai (
-      year  => $year,
-      month => $month,
-      day   => $day,
-      %args,
-  );
-
   # Return a string in scalar context.
   $bahai_date = to_bahai ();
   $bahai_date = to_bahai (
@@ -739,7 +727,23 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
       use_gmtime => $use_gmtime,
       %args,
   );
+
   $bahai_date = to_bahai (
+      year  => $year,
+      month => $month,
+      day   => $day,
+      %args,
+  );
+
+  # Return a hash in array context.
+  %bahai_date = to_bahai ();
+  %bahai_date = to_bahai (
+      epoch => time,
+      use_gmtime => $use_gmtime,
+      %args,
+  );
+
+  %bahai_date = to_bahai (
       year  => $year,
       month => $month,
       day   => $day,
@@ -772,15 +776,15 @@ hash with the following keys:
 
 =head2 from_bahai
 
-  # Return a ymd triple in array context.
-  ($year, $month, $day) = from_bahai (
+  # Return a y/m/d string in scalar context.
+  $date = from_bahai (
       year  => $bahai_year,
       month => $bahai_month,
       day   => $bahai_day,
   );
 
-  # Return a y/m/d string in scalar context.
-  $date = from_bahai (
+  # Return a ymd triple in array context.
+  ($year, $month, $day) = from_bahai (
       year  => $bahai_year,
       month => $bahai_month,
       day   => $bahai_day,
@@ -939,33 +943,16 @@ L<Lingua::Num2Word>
 
 Factor out the fugly _invert_holy_days function.
 
-Make the test suite test every possible date over two years, 
-including a leap year.
-
 Optionally output unicode.
 
 Base the date computation on the time of day (the Baha'i day begins at 
-Sunset) - and the location longitude/latitude.
+Sunset) and the location longitude/latitude.
 
 Overload localtime and gmtime, just to be cool?
 
 =head1 DEDICATION
 
 Hi Kirsten  : )
-
-=head1 DISCLAIMER
-
-I have no designs or intentions to be compatible with other date and 
-time representations (such as ICal or DateTime).  That is for those 
-external packages and the people who care to do the ultra-simple 
-conversions.
-
-This package is simple from the outside and requires only that which 
-is necessary to represent the Baha'i date.  That is, you give it a 
-date, and it returns the Baha'i representation.
-
-(Having said that, please see the TO DO section about wanting to do
-two-way conversions.)
 
 =head1 REFERENCES
 
