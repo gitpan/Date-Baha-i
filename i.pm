@@ -1,7 +1,7 @@
 package Date::Baha::i;  # {{{
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.11.1';
+use vars qw($VERSION); $VERSION = '0.11.2';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -696,6 +696,7 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 =head2 date
 
   %bahai_date = date ();
+
   %bahai_date = date (
       timestamp  => $secs_since_1970,
       use_gmtime => $use_gmtime,
@@ -721,8 +722,8 @@ The extra arguments are used for the as_string () function, which are
 detailed below.
 
 In a scalar context, this function returns a string sentence with the 
-numeric and named Baha'i date.  In an array context, it returns a hash
-with the following keys:
+numeric and/or named Baha'i date.  In an array context, it returns a 
+hash with the following keys:
 
   kull_i_shay
   cycle
@@ -827,49 +828,50 @@ This function returns the first holy day after the provided date
 triple.
 
 The return is a hash reference with a single key (the name of the
-holy day) and an two element array reference of [month, day] as the 
-value.
+holy day) and a two or three element array reference of 
+[month, day, duration] as the value.
 
 =head2 cycles
 
   @cycles = cycles ();
 
-Return the 19 cycle names as an array.
+This function returns the 19 cycle names as an array.
 
 =head2 years
 
   @years = years ();
 
-Return the 19 year names as an array.
+This function returns the 19 year names as an array.
 
 =head2 months
 
   @months = months ();
 
-Return the 19 month names as an array, along with the intercalary days
-("Ayyam-i-Ha") as the last element.
+This function returns the 19 month names as an array, along with the 
+intercalary days (Ayyam-i-Ha) as the last element.
 
 =head2 days
 
   @days = days ();
 
-Return the 19 day names as an array.
+This function returns the 19 day names as an array.
 
 =head2 days_of_the_week
 
   @days = days_of_the_week ();
 
-Return the 7 day-of-the-week names as an array.
+This function returns the 7 day-of-the-week names as an array.
 
 =head2 holy_days
 
   @days = holy_days ();
 
-Return the holy days as a hash where the keys are the holy day names 
-and the values are array references.  These array references are 
-composed of two or three elements, where the first is the month, the 
-second is the day, and the third is the (optional) number of days 
-observed.  These dates are currently in standard (non-Baha'i) format.
+This function returns the holy days as a hash, where the keys are 
+the holy day names and the values are array references.  These array 
+references are composed of two or three elements, where the first is 
+the month, the second is the day, and the third is the (optional) 
+number of days observed.  These dates are saved in standard 
+(non-Baha'i) format.
 
 =head1 DEPENDENCIES
 
@@ -896,6 +898,10 @@ Overload localtime and gmtime, just to be cool?
 Hi Kirsten  : )
 
 =head1 REFERENCES
+
+L<http://www.bahaindex.com/calendar.html>
+
+L<http://www.moonwise.co.uk/year/159bahai.htm>
 
 L<http://www.perl.com/pub/a/2003/03/13/datetime.html>
 

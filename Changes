@@ -99,3 +99,6 @@ Revision history for Perl extension Date::Baha::i.
 
 0.11.1  Wed Apr 30 2003
     - Cleaned and fixed documentation.
+
+0.11.2  
+    - Fixed documentation a bit.
