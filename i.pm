@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.08.1';
+use vars qw($VERSION); $VERSION = '0.09';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -17,10 +17,11 @@ use vars qw(@EXPORT @EXPORT_OK);
     years
 );
 
+# XXX Temporary fix for the broken Date::Calc::Date_to_Time
+use Time::Local;
 use Date::Calc qw(
     leap_year
     Add_Delta_Days
-    Date_to_Time
     Day_of_Week
     Delta_Days
     Timezone
@@ -140,10 +141,6 @@ sub date {
     $year += ADJUST_YEAR;
     $month++;
 
-    # XXX Argh!  Why do I need to do this?  Am I deluded?
-    ($year, $month, $day) = Add_Delta_Days($year, $month, $day, 1)
-        unless $args{use_gmtime};
-
     # Begin with the first month of the year (at the Spring equinox).
     my ($m, $d) = (MARCH, YEAR_START_DAY);
 
@@ -198,10 +195,17 @@ sub date {
 # }}}
 
 # greg_to_bahai function {{{
+# XXX Whoa. Check this out:
+#perl -MTime::Local -wle'print scalar localtime timelocal(0,0,0,28,3,103)'
+#Mon Apr 28 00:00:00 2003
+#perl -MDate::Calc=Date_to_Time -wle'print scalar localtime Date_to_Time(2003,4,28,0,0,0)'
+#Sun Apr 27 19:00:00 2003
+# Conclusion: Date_to_Time sucks.
 sub greg_to_bahai {
     my ($y, $m, $d, %args) = @_;
     return date (
-        timestamp => Date_to_Time ($y, $m, $d, 0, 0, 0),
+#        timestamp => Date_to_Time ($y, $m, $d, 0, 0, 0),
+        timestamp => timelocal (0, 0, 0, $d, $m - 1, $y - ADJUST_YEAR),
         %args
     );
 }
@@ -737,6 +741,9 @@ with the following keys:
   timezone
   holy_day
 
+* This function currently uses the Time::Local module and as such is
+limited to dates before the 2nd of January, 2038.
+
 =head2 greg_to_bahai
 
   %bahai_date = greg_to_bahai (
@@ -873,6 +880,8 @@ observed.  These dates are currently in standard (non-Baha'i) format.
 
 =head1 DEPENDENCIES
 
+L<Time::Local>
+
 L<Date::Calc>
 
 L<Lingua::EN::Numbers::Ordinate>
@@ -881,21 +890,25 @@ L<Lingua::Num2Word>
 
 =head1 TO DO
 
+Replace Time::Local with something that doesn't have a range limit.
+
 Convert to Gregorian dates and Unix time stamps from Baha'i dates.
 
-Integrate with the DateTime namespace functionality.
-
-Output unicode.
+Optonally output unicode.
 
 Base the date computation on the time of day (the Baha'i day begins at 
 Sunset) - and the location longitude/latitude.  Yes, that would be 
 with Astro::Sunrise::sunset ().
 
-Overload localtime () and gmtime () just to be cool?
+Overload localtime and gmtime, just to be cool?
 
 =head1 DEDICATION
 
 Hi Kirsten  : )
+
+=head1 REFERENCES
+
+L<http://www.perl.com/pub/a/2003/03/13/datetime.html>
 
 =head1 AUTHOR
 

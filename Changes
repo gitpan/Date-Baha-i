@@ -78,3 +78,9 @@ Revision history for Perl extension Date::Baha::i.
     - Fixed documentation.
     - Added a reminder to integrate with DateTime to the TO DO
       section.
+
+0.09
+    - Fixed documentation.
+    - Replaced the seemingly broken Date::Calc::Date_to_Time()
+      function with Time::Local. (See the XXX comment preceding the
+      greg_to_bahai() function.)

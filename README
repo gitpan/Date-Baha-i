@@ -1,5 +1,5 @@
-Date/Baha/i version 0.08.1
-==========================
+Date/Baha/i version 0.09
+========================
 
 INSTALLATION
 
@@ -12,11 +12,13 @@ To install this module type the following:
 
 DEPENDENCIES
 
-L<Date::Calc>
+Time::Local
 
-L<Lingua::EN::Numbers::Ordinate>
+Date::Calc
 
-L<Lingua::Num2Word>
+Lingua::EN::Numbers::Ordinate
+
+Lingua::Num2Word
 
 COPYRIGHT AND LICENCE
 
