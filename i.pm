@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.07';
+use vars qw($VERSION); $VERSION = '0.08';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -13,10 +13,12 @@ use vars qw(@EXPORT @EXPORT_OK);
     greg_to_bahai
     holy_days
     months
+    next_holy_day
     years
 );
 
 use Date::Calc qw(
+    leap_year
     Add_Delta_Days
     Date_to_Time
     Day_of_Week
@@ -87,23 +89,22 @@ use constant DOW_NAME => qw(
     Istijlal
     Istiqlal
 );
-use constant HOLY_DAYS => (
+use constant HOLY_DAYS => {
     # Work suspended:
-    "Naw Ruz" => [3, 21],
-    "First Day of Ridvan" => [4, 21],
-    "Ninth Day of Ridvan" => [4, 29],
-    "Twelfth Day of Ridvan" => [5, 2],
-    "Declaration of the Bab" => [5, 23],
-    "Ascension of Baha'u'llah" => [5, 29],
-    "Martyrdom of the Bab" => [7, 9],
-    "Birth of the Bab" => [10, 20],
-    "Birth of Baha'u'llah" => [11, 12],
+    "Naw Ruz"                   => [ 3, 21],
+    "Ridvan"                    => [ 4, 21, 12],
+    "Ninth Day of Ridvan"       => [ 4, 29],
+    "Declaration of the Bab"    => [ 5, 23],
+    "Ascension of Baha'u'llah"  => [ 5, 29],
+    "Martyrdom of the Bab"      => [ 7,  9],
+    "Birth of the Bab"          => [10, 20],
+    "Birth of Baha'u'llah"      => [11, 12],
     # Work not suspended:
-    "Day of the Covenant" => [11, 26],
+    "Day of the Covenant"       => [11, 26],
     "Ascension of 'Abdu'l-Baha" => [11, 28],
-    "Ayyam-i-Ha" => [2, 26, 4],
-    "The Fast" => [3, 2, 19],
-);
+    "Ayyam-i-Ha"                => [ 2, 25,  4],  # 5 days in leap years
+    "The Fast"                  => [ 3,  2, 19],
+};
 # }}}
 
 # List return functions {{{
@@ -131,8 +132,6 @@ sub date {
             ? (localtime($args{timestamp}))[5,4,3]
             : (localtime)[5,4,3];
     }
-    # XXX Argh!  Why do I need to do this?  Am I deluded?
-    $day++ unless exists $args{use_gmtime} && $args{use_gmtime};
 
     # This is what will eventually be used in the return.
     my ($bahai_month, $bahai_day);
@@ -140,6 +139,10 @@ sub date {
     # Fix the year and the month.
     $year += ADJUST_YEAR;
     $month++;
+
+    # XXX Argh!  Why do I need to do this?  Am I deluded?
+    ($year, $month, $day) = Add_Delta_Days($year, $month, $day, 1)
+        unless $args{use_gmtime};
 
     # Begin with the first month of the year (at the Spring equinox).
     my ($m, $d) = (MARCH, YEAR_START_DAY);
@@ -197,8 +200,6 @@ sub date {
 # greg_to_bahai function {{{
 sub greg_to_bahai {
     my ($y, $m, $d, %args) = @_;
-    # XXX Argh!  Why do I need to do this?  Am I deluded?
-    $d++ unless exists $args{use_gmtime} && $args{use_gmtime};
     return date (
         timestamp => Date_to_Time ($y, $m, $d, 0, 0, 0),
         %args
@@ -292,7 +293,41 @@ sub as_string {
         }
     }
 
+    if ($date_hash->{holy_day} && $args{size}) {
+        $date .= ', holy day: ' . join '', keys %{ $date_hash->{holy_day} };
+    }
+
     return $date;
+}
+# }}}
+
+# next_holy_day function {{{
+# NOTE: We are only concerned with the month/day, so the date year
+# is ignored.
+sub next_holy_day {
+    my ($year, $month, $day) = @_;
+
+    # Make the month and day a pseudo real number.
+    my $m_d = "$month.$day";
+
+    # Construct our lists of pseudo real number dates.
+    my %inverted = _invert_holy_days ($year);
+    my @sorted = sort { $a <=> $b } keys %inverted;
+
+    my $holy_date;
+
+    # Find the first date greater than the one provided.
+    for (@sorted) {
+        if ($m_d < $_) {
+            $holy_date = $_;
+            last;
+        }
+    }
+
+    # If one was not found, just grad the last date in the list.
+    $holy_date = $sorted[-1] unless $holy_date;
+
+    return { $inverted{$holy_date} => [ split /\./, $holy_date ] };
 }
 # }}}
 
@@ -383,7 +418,42 @@ sub _build_date {
     # ($D_y,$D_m,$D_d, $Dh,$Dm,$Ds, $dst) = Timezone ();
     $date{timezone} = (Timezone ())[3];
 
+    # Get the holy day!
+    my $m_d = $month .'.'. sprintf ('%02d', $day);
+    my %inverted = _invert_holy_days ($year);
+    $date{holy_day} = { $inverted{$m_d} => HOLY_DAYS->{$inverted{$m_d}} }
+        if exists $inverted{$m_d};
+
     return wantarray ? %date : as_string (\%date, %args);
+}
+
+sub _invert_holy_days {
+    my $year = shift || (localtime)[5] + ADJUST_YEAR;
+    my $h = HOLY_DAYS;
+
+    my %expanded;
+
+    while (my ($name, $dates) = each %$h) {
+        # Pre-pad the day number with a zero.
+        $dates->[1] = sprintf '%02d', $dates->[1];
+
+        $expanded{"$dates->[0].$dates->[1]"} = $name;
+
+        # Does this date contain a day span?
+        if (@$dates == 3) {
+            # Increment the Ayyam-i-ha day if we are in a leap year.
+            $dates->[2]++ if leap_year ($year);
+
+            for (1 .. $dates->[2]) {
+                # Pre-pad the day number with a zero.
+                (undef, my $month, my $day) = Add_Delta_Days($year, @$dates[0,1], $_);
+                $day = sprintf '%02d', $day;
+                $expanded{"$month.$day"} = $name;
+            }
+        }
+    }
+
+    return %expanded;
 }
 # }}}
 
@@ -405,6 +475,8 @@ Date::Baha::i - Compute the numeric and named Baha'i date.
   $bahai_date = greg_to_bahai ($year, $month, $day);
 
   $bahai_date = as_string (\%bahai_date);
+
+  %holy_day = next_holy_day ($year, $month, $day);
 
   @ret = cycles ();
   @ret = years ();
@@ -637,12 +709,14 @@ L<http://www.moonwise.co.uk/year/159bahai.htm>
 
   %bahai_date = date (
       timestamp => $timestamp,
+      use_gmtime => $use_gmtime,
       %args,
   )
 
 This function returns a hash of the Baha'i date names and numbers from
-a system or user provided time () stamp.  The extra arguments are used
-for the as_string () function, detailed below.
+a system or user provided time () stamp.  Also, this function can be
+forced to use gmtime instead of localtime (the default).  The extra 
+arguments are used for the as_string () function, detailed below.
 
 In a scalar context, this function returns a string sentence with the 
 numeric and named Baha'i date.  In an array context, it returns a hash
@@ -661,16 +735,20 @@ with the following keys:
   dow
   dow_name
   timezone
+  holy_day
 
 =head2 greg_to_bahai
 
   %bahai_date = greg_to_bahai (
       $year, $month, $day,
+      use_gmtime => $use_gmtime,
       %args,
   );
 
-Compute the Baha'i date from a Gregorian year, month, day triple.  The
-extra arguments are used for the as_string () function, detailed below.
+Compute the Baha'i date from a Gregorian year, month, day triple.
+Also, this function can be forced to use gmtime instead of localtime 
+(the default).  The extra arguments are used for the as_string () 
+function, detailed below.
 
 In a scalar context, this function returns a string sentence with the 
 numeric and named Baha'i date.  In an array context, it returns the 
@@ -713,10 +791,10 @@ Here are some handy examples:
   7, 1/1/159, -6
 
   long numeric:
-  7th day of the week, 1st day of the 1st month, year 159, 7th year of the 9th vahid of the 1st kull-i-shay
+  7th day of the week, 1st day of the 1st month, year 159, 7th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz
 
   long numeric with TZ:
-  7th day of the week, 1st day of the 1st month, year 159, 7th year of the 9th vahid of the 1st kull-i-shay, TZ -6h
+  7th day of the week, 1st day of the 1st month, year 159, 7th year of the 9th vahid of the 1st kull-i-shay, TZ -6h, holy day: Naw Ruz
 
   short alpha:
   Istiqlal, Baha of Baha, Abad of Baha
@@ -725,10 +803,10 @@ Here are some handy examples:
   Istiqlal, Baha of Baha, Abad of Baha, TZ -6h
 
   long alpha:
-  week day Istiqlal, day Baha of month Baha, year one hundred fifty nine of year Abad of the vahid Baha of the 1st kull-i-shay
+  week day Istiqlal, day Baha of month Baha, year one hundred fifty nine of year Abad of the vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
 
   long alpha with TZ:
-  week day Istiqlal, day Baha of month Baha, year one hundred fifty nine of year Abad of the vahid Baha of the 1st kull-i-shay, with timezone offset of negative six hours
+  week day Istiqlal, day Baha of month Baha, year one hundred fifty nine of year Abad of the vahid Baha of the 1st kull-i-shay, with timezone offset of negative six hours, holy day: Naw Ruz
 
   short alpha-numeric:
   Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9)
@@ -737,10 +815,20 @@ Here are some handy examples:
   Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9), TZ -6h
 
   long alpha-numeric:
-  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay
+  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
 
   long alpha-numeric with TZ:
-  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay, with timezone offset of negative six hours
+  7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay, with timezone offset of negative six hours, holy day: Naw Ruz
+
+=head1 next_holy_day
+
+  %holy_day = next_holy_day ($year, $month, $day)
+
+This function returns the first holy day after the provided date triple.
+
+The return is a hash reference with a single key (the name of the
+holy day) and an two element array reference of [month, day] as the 
+value.
 
 =head2 cycles
 
@@ -795,14 +883,11 @@ L<Lingua::Num2Word>
 
 Convert to Gregorian dates and Unix time stamps from Baha'i dates.
 
-Base the date computation on the time of day (the Baha'i day begins at 
-Sunset).
-
-Add the current holy day to the date, if the day is on one.
-
-Add a next_holy_day () function?
-
 Output unicode.
+
+Base the date computation on the time of day (the Baha'i day begins at 
+Sunset) - and the location longitude/latitude.  Yes, that would be 
+with Astro::Sunrise::sunset ().
 
 Overload localtime () and gmtime () just to be cool?
 

@@ -67,3 +67,9 @@ Revision history for Perl extension Date::Baha::i.
     - Used gmtime in the date and greg_to_bahai functions, if asked to.
     - Incremented the day number if we are using localtime.  XXX: Why??
     - Made tests use gmtime.
+
+0.08  Sun Mar 23 2003
+    - Corrected the "addition of one day" in the date () function.
+    - Fixed the syntax of the HOLY_DAYS constant hash.
+    - Added the current holy day to the date, if the day is on one.
+    - Added a next_holy_day () function.

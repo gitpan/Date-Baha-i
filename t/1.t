@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Data::Dumper;
 
 # test context {{{
@@ -17,9 +17,10 @@ my $test_date = {
     'day' => 1,
     'year_name' => 'Jad',
     'year' => 160,
-    'cycle' => 9
+    'cycle' => 9,
+    'holy_day' => { 'Naw Ruz' => [3, 21] },
 };
-my $test_string = "week day Istiqlal, day Baha of month Baha, year one-hundred sixty of year Jad of the vahid Baha of the 1st kull-i-shay";
+my $test_string = "week day Istiqlal, day Baha of month Baha, year one-hundred sixty of year Jad of the vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz";
 # }}}
 
 BEGIN { use_ok("Date::Baha::i") };
@@ -75,7 +76,7 @@ $date = as_string (\%date,
     numeric => 1,
     alpha   => 0,
 );
-is $date, '7th day of the week, 1st day of the 1st month, year 160, 8th year of the 9th vahid of the 1st kull-i-shay',
+is $date, '7th day of the week, 1st day of the 1st month, year 160, 8th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz',
     'long numeric string';
 $date = as_string (\%date,
     size    => 0,
@@ -89,7 +90,7 @@ $date = as_string (\%date,
     numeric => 1,
     alpha   => 1,
 );
-is $date, '7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one-hundred sixty (160), 8th year Jad of the 9th vahid Baha of the 1st kull-i-shay',
+is $date, '7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one-hundred sixty (160), 8th year Jad of the 9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz',
     'long alpha-numeric string';
 $date = as_string (\%date,
     size    => 0,
@@ -98,6 +99,12 @@ $date = as_string (\%date,
 );
 is $date, 'Istiqlal (7), Baha (1) of Baha (1), year 160, Jad (8) of Baha (9)',
     'short alpha-numeric string';
+
+# next holy day
+#
+$date = next_holy_day (@test_greg);
+is_deeply $date, { Ridvan => [4, 21] },
+    'next holy day';
 
 # Name lists.
 #
@@ -111,5 +118,5 @@ is @ret, 20, 'months list';
 is @ret, 19, 'day list';
 @ret = days_of_the_week ();
 is @ret, 7, 'days of the week list';
-my %ret = holy_days ();
-is keys %ret, 13, 'holy day hash';
+my $ret = holy_days ();
+is keys %$ret, 12, 'holy day hash';
