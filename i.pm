@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.10';
+use vars qw($VERSION); $VERSION = '0.11';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -76,7 +76,7 @@ use constant MONTH_DAY => qw(
     Sultan
     Mulk
     'Ala
-    Ayyam-i-ha
+    Ayyam-i-Ha
 );
 use constant DOW_NAME => qw(
     Jalal
@@ -90,8 +90,10 @@ use constant DOW_NAME => qw(
 use constant HOLY_DAYS => {
     # Work suspended:
     "Naw Ruz"                   => [ 3, 21],
-    "Ridvan"                    => [ 4, 21, 12],
+    "Days of Ridvan"            => [ 4, 21, 12],
+    "First Day of Ridvan"       => [ 4, 21],
     "Ninth Day of Ridvan"       => [ 4, 29],
+    "Twelfth Day of Ridvan"     => [ 5,  2],
     "Declaration of the Bab"    => [ 5, 23],
     "Ascension of Baha'u'llah"  => [ 5, 29],
     "Martyrdom of the Bab"      => [ 7,  9],
@@ -427,10 +429,10 @@ sub _invert_holy_days {
 
         # Does this date contain a day span?
         if (@$dates == 3) {
-            # Increment the Ayyam-i-ha day if we are in a leap year.
-            $dates->[2]++ if leap_year ($year);
+            # Increment the Ayyam-i-Ha day if we are in a leap year.
+            $dates->[2]++ if $name eq 'Ayyam-i-ha' && leap_year ($year);
 
-            for (1 .. $dates->[2]) {
+            for (1 .. $dates->[2] - 1) {
                 # Pre-pad the day number with a zero.
                 (undef, my $month, my $day) = Add_Delta_Days($year, @$dates[0,1], $_);
                 $day = sprintf '%02d', $day;

@@ -1,6 +1,5 @@
 use strict;
 use Test::More tests => 18;
-use Data::Dumper;
 
 # test context {{{
 my $test_time = '1048204800';  # 2003/3/21 00:00:00
@@ -10,19 +9,19 @@ my %test_greg = (
     day   => 21
 );
 my $test_date = {
+    'cycle'       => 9,
+    'cycle_name'  => 'Baha',
+    'cycle_year'  => 8,
+    'day'         => 1,
+    'day_name'    => 'Baha',
+    'dow'         => 7,
+    'dow_name'    => 'Istiqlal',
+    'holy_day'    => { 'Naw Ruz' => [3, 21] },
     'kull_i_shay' => 1,
-    'month' => 1,
-    'dow_name' => 'Istiqlal',
-    'cycle_name' => 'Baha',
-    'day_name' => 'Baha',
-    'cycle_year' => 8,
-    'month_name' => 'Baha',
-    'dow' => 7,
-    'day' => 1,
-    'year_name' => 'Jad',
-    'year' => 160,
-    'cycle' => 9,
-    'holy_day' => { 'Naw Ruz' => [3, 21] },
+    'month'       => 1,
+    'month_name'  => 'Baha',
+    'year'        => 160,
+    'year_name'   => 'Jad',
 };
 my $test_string = "week day Istiqlal, day Baha of month Baha, year one-hundred sixty of year Jad of the vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz";
 # }}}
@@ -40,10 +39,7 @@ my %date = date (
 delete $date{timezone};
 is_deeply \%date, $test_date, "timestamp in array context";
 
-%date = date (
-    %test_greg,
-    use_gmtime => 1,
-);
+%date = date (%test_greg);
 delete $date{timezone};
 is_deeply \%date, $test_date, "ymd date in array context";
 
@@ -53,16 +49,14 @@ my $date = date (
 );
 is $date, $test_string, "timestamp in scalar context";
 
-$date = date (
-    %test_greg,
-    use_gmtime => 1,
-);
+$date = date (%test_greg);
 is $date, $test_string, "ymd in scalar context";
 
 # as_string () functionality
 #
 $date = as_string (\%date);
-is $date, $test_string, 'long alpha string';
+is $date, $test_string,
+    'long alpha string';
 $date = as_string (\%date,
     size    => 0,
     numeric => 0,
@@ -101,7 +95,8 @@ is $date, 'Istiqlal (7), Baha (1) of Baha (1), year 160, Jad (8) of Baha (9)',
 # next holy day
 #
 $date = next_holy_day (@test_greg{qw(year month day)});
-is_deeply $date, { Ridvan => [4, 21] }, 'next holy day';
+is_deeply $date, { 'First Day of Ridvan' => [4, 21] },
+    'next holy day';
 
 # Name lists.
 #
@@ -116,4 +111,4 @@ is @ret, 19, 'day list';
 @ret = days_of_the_week ();
 is @ret, 7, 'days of the week list';
 my $ret = holy_days ();
-is keys %$ret, 12, 'holy day hash';
+is keys %$ret, 14, 'holy day hash';

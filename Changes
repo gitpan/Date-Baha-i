@@ -79,14 +79,20 @@ Revision history for Perl extension Date::Baha::i.
     - Added a reminder to integrate with DateTime to the TO DO
       section.
 
-0.09  Tue Apr 29 2003 (9th day of Ridvan!)
+0.09  Tue Apr 29 2003
     - Fixed documentation.
-    - Replaced the seemingly broken Date::Calc::Date_to_Time()
-      function with Time::Local. (See the XXX comment preceding the
-      greg_to_bahai() function.)
+    - Replaced the Date::Calc::Date_to_Time () function with
+      Time::Local in the greg_to_bahai () function.
 
-0.10  Tue Apr 29 2003 (Still the 9th day of Ridvan!)
+0.10  Tue Apr 29 2003
     - Ack.  I'm a dork.  I don't even need the greg_to_bahai()
-      function!
+      function.  It has a dumb name too...
     - In the same purge, I got rid of the stupid conversion to epoch
       seconds and back.
+
+0.11  Tue Apr 29 2003 
+    - Added the first and twelfth days of Ridvan to the HOLY_DAYS
+      hash.
+    - Corrected the off-by-one error in the _invert_holy_days()
+      function.
+    - Updated the test script, accordingly.
