@@ -1,15 +1,27 @@
 package Date::Baha::i;
 
 use strict;
-use base qw(Exporter);
-use vars qw($VERSION @EXPORT @EXPORT_OK);
-$VERSION = '0.01';
-@EXPORT = @EXPORT_OK = qw(bahai_date);
+#use base qw(Exporter);
+#use vars qw($@EXPORT @EXPORT_OK);
+#@EXPORT = @EXPORT_OK = qw(bahai_date);
+use vars qw($VERSION); $VERSION = '0.02';
+use Date::Calc qw(
+    Add_Delta_Days
+    Day_of_Week
+    Delta_Days
+    Timezone
+);
 
-use Date::Calc qw(Add_Delta_Days Day_of_Week Delta_Days);
-
-# years {{{
-my @years = qw(
+# Set constants {{{
+use constant FACTOR => 19;
+use constant MARCH => 3;
+use constant LAST_START_DAY => 2;   # First day of the fast.
+use constant YEAR_START_DAY => 21;  # Spring equinox.
+use constant FEBRUARY => 2;
+use constant LEAP_START_DAY => 25;  # The intercalary days.
+use constant FIRST_YEAR  => 1844;
+use constant ADJUST_YEAR => 1900;
+use constant CYCLE_YEAR => qw(
     Alif
     Ba
     Ab
@@ -30,9 +42,7 @@ my @years = qw(
     Abha
     Vahid
 );
-# }}}
-# months {{{
-my @months = qw(
+use constant MONTH_DAY => qw(
     Baha
     Jalal
     Jamal
@@ -54,9 +64,7 @@ my @months = qw(
     'Ala
     Ayyam-i-ha
 );
-# }}}
-# days {{{
-my @days = qw(
+use constant DOW_NAME => qw(
     Jalal
     Jamal
     Kaml
@@ -67,92 +75,59 @@ my @days = qw(
 );
 # }}}
 
-# sub bahai_date {{{
-sub bahai_date {
+# date function {{{
+sub date {
     my $t = shift;
     my ($year, $month, $day) = $t
         ? (localtime($t))[5,4,3]
         : (localtime)[5,4,3];
 
+    # This is what will eventually be used in the return.
+    my ($bahai_month, $bahai_day);
+
     # Fix the year and the month.
-    $year += 1900;
+    $year += ADJUST_YEAR;
     $month++;
 
-    # We want to return the day of the week, also.
-    my $dow = day_of_week ($year, $month, $day);
-    my $dow_name = $days[$dow];
-    $dow++;
-
     # Begin with the first month of the year (at the Spring equinox).
-    my ($m, $d) = (3, 21);
+    my ($m, $d) = (MARCH, YEAR_START_DAY);
 
     # Found month flag.
     my $found = 0;
 
-    for my $n (0 .. 17) {
-        my ($y19, $m19, $d19) = ninteen_days ($year, $m, $d);
+    # Loop through all the official months, less two.
+    for my $n (0 .. FACTOR - 2) {
+        my ($my_y, $my_m, $my_d) = ninteen_days ($year, $m, $d);
 
-        $found = in_month_span ($month, $day, $m, $d, $m19, $d19);
-#        warn $found ? '* ' : '', "$_: $m/$d - ", join ('/', $m19, $d19), "\n";
-
-        # We found our month!
-        if ($found) {
-            $day = delta_month_days ($m, $d - 1, $year, $month, $day);
-            $month = $n;
+        # Have we found our month?
+        if ($found = in_month_span ($month, $day, $m, $d, $my_m, $my_d)) {
+            $bahai_day = delta_month_days ($m, $d - 1, $year, $month, $day);
+            $bahai_month = $n;
             last;
         }
 
         # Increment our date.
-        ($m, $d) = ($m19, $d19 + 1);
+        ($m, $d) = ($my_m, $my_d + 1);
     }
 
     # If we haven't found our month, check 'Ala.
-    if (!$found && ($found = in_month_span ($month, $day, 3, 2, 3, 20))) { 
-        $day = delta_month_days (3, 1, $year, $month, $day);
-        $month = 18;
-#        warn "* $month: 3/2 - 3/20\n";
+    if (!$found &&
+        ($found = in_month_span (
+            $month, $day, MARCH, LAST_START_DAY, MARCH, YEAR_START_DAY - 1
+         ))
+    ) { 
+        $bahai_day = delta_month_days (MARCH, 1, $year, $month, $day);
+        $bahai_month = FACTOR - 1;
     }   
 
     # If we still didn't find a month, it is Ayyam-i-Ha!
     unless ($found) {
-        $day = delta_month_days (2, 25, $year, $month, $day);
-        $month = -1;
+        $bahai_day = delta_month_days (FEBRUARY, LEAP_START_DAY, $year, $month, $day);
+        $bahai_month = -1;
     }
 
-    # Get the name of the day.
-    my $day_name = $months[$day - 1];
-
-    # Get the name of the month.
-    my $month_name = $months[$month];
-    # Fix the month number, unless we are in Ayyam-i-ha.
-    $month++ unless $month == -1;
-
-    # Calculate the year.
-    $year -= 1844;
-    my $year_name = $years[($year - 1) % 19];
-    my $cycle_year = $year % 19;
-
-    # Calculate the cycle.
-    my $cycle = int ($year / 19) + 1;
-    my $cycle_name = $years[($cycle - 1) % 19];
-
-    # Compute the Kull-i-Shay.
-    my $kull_i_shay = int ($cycle / 19) + 1;
-
-    return {
-        kull_i_shay => $kull_i_shay,
-        cycle       => $cycle,
-        cycle_name  => $cycle_name,
-        cycle_year  => $cycle_year,
-        year        => $year,
-        year_name   => $year_name,
-        month       => $month,
-        month_name  => $month_name,
-        day         => $day,
-        day_name    => $day_name,
-        dow         => $dow,
-        dow_name    => $dow_name,
-    };
+    # Build the date hashref to return.
+    return _build_date ($year, $month, $day, $bahai_month, $bahai_day);
 }
 # }}}
 
@@ -165,7 +140,8 @@ sub day_of_week {
     return $standard > 6 ? 0 : $standard;
 }
 
-# How many days are we into the Baha'i month?
+# Compute the number of days between consecutive months.
+# In our case, it's, "How many days are we into this Baha'i month?"
 sub delta_month_days {
     my ($m1, $d1, $y2, $m2, $d2) = @_;
     # If Dec-Jan, get the next year.
@@ -193,8 +169,45 @@ sub in_month_span {
 # Return  the standard date ninteen days hence.
 sub ninteen_days {
     my ($y, $m, $d) = @_;
-    return Add_Delta_Days($y, $m, $d - 1, 19)
+    return Add_Delta_Days($y, $m, $d - 1, FACTOR)
 }
+
+sub _build_date {
+    my ($year, $month, $day, $new_month, $new_day) = @_;
+
+    my %date;
+    @date{qw(month day)} = ($new_month, $new_day);
+
+    # Set the day of the week.
+    $date{dow} = day_of_week ($year, $month, $day);
+    $date{dow_name} = (DOW_NAME)[$date{dow}];
+    $date{dow}++;
+
+    # Set the day.
+    $date{day_name} = (MONTH_DAY)[$date{day} - 1];
+
+    # Set the the month.
+    $date{month_name} = (MONTH_DAY)[$date{month}];
+    # Fix the month number, unless we are in Ayyam-i-ha.
+    $date{month}++ unless $date{month} == -1;
+
+    # Set the year.
+    $date{year} = $year - FIRST_YEAR;
+    $date{year_name} = (CYCLE_YEAR)[($date{year} - 1) % FACTOR];
+    $date{cycle_year} = $date{year} % FACTOR;
+
+    # Set the cycle.
+    $date{cycle} = int ($date{year} / FACTOR) + 1;
+    $date{cycle_name} = (CYCLE_YEAR)[($date{cycle} - 1) % FACTOR];
+
+    # Set the Kull-i-Shay.
+    $date{kull_i_shay} = int ($date{cycle} / FACTOR) + 1;
+
+#    $date{timezone} = [ Timezone () ];
+
+    return \%date;
+}
+
 # }}}
 
 1;
@@ -202,7 +215,7 @@ __END__
 
 =head1 NAME
 
-Date::Baha'i - Calculate the numeric and named Baha'i date.
+Date::Baha'i - Compute the numeric and named Baha'i date.
 
 =head1 SYNOPSIS
 
@@ -390,11 +403,15 @@ None.
 
 Overload localtime().
 
-Convert between Julian dates and unix time stamps and Baha'i dates.
+Compute the timezone.
+
+Convert between Julian dates/Unix timestamps and Baha'i dates.
 
 Return lists of months, days, and years, cycles, holy days, etc.
 
 Base the date computation on the time of day (the Baha'i day begins at Sunset).
+
+Output unicode.
 
 =head1 HISTORY
 

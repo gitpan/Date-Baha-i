@@ -4,3 +4,8 @@ Revision history for Perl extension Date::Baha::i.
 	- original version; created by h2xs 1.22 with options
 		-X -n Date::Baha::i
 
+0.02  Wed Mar  5 2003
+    - Used constants in place of mystery literals.
+    - Moved the final date computations to a seperate, private
+      subroutine.
+    - Fixed feeble, broken test case.
