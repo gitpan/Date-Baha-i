@@ -73,3 +73,8 @@ Revision history for Perl extension Date::Baha::i.
     - Fixed the syntax of the HOLY_DAYS constant hash.
     - Added the current holy day to the date, if the day is on one.
     - Added a next_holy_day () function.
+
+0.08.1  Sun Mar 23 2003
+    - Fixed documentation.
+    - Added a reminder to integrate with DateTime to the TO DO
+      section.

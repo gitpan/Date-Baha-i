@@ -1,7 +1,7 @@
 package Date::Baha::i;
 
 use strict;
-use vars qw($VERSION); $VERSION = '0.08';
+use vars qw($VERSION); $VERSION = '0.08.1';
 use base qw(Exporter);
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -820,7 +820,7 @@ Here are some handy examples:
   long alpha-numeric with TZ:
   7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred fifty nine (159), 7th year Abad of the 9th vahid Baha of the 1st kull-i-shay, with timezone offset of negative six hours, holy day: Naw Ruz
 
-=head1 next_holy_day
+=head2 next_holy_day
 
   %holy_day = next_holy_day ($year, $month, $day)
 
@@ -882,6 +882,8 @@ L<Lingua::Num2Word>
 =head1 TO DO
 
 Convert to Gregorian dates and Unix time stamps from Baha'i dates.
+
+Integrate with the DateTime namespace functionality.
 
 Output unicode.
 
