@@ -1,0 +1,414 @@
+package Date::Baha::i;
+
+use strict;
+use base qw(Exporter);
+use vars qw($VERSION @EXPORT @EXPORT_OK);
+$VERSION = '0.01';
+@EXPORT = @EXPORT_OK = qw(bahai_date);
+
+use Date::Calc qw(Add_Delta_Days Day_of_Week Delta_Days);
+
+# years {{{
+my @years = qw(
+    Alif
+    Ba
+    Ab
+    Dal
+    Bab
+    Vav
+    Abad
+    Jad
+    Baha
+    Hubb
+    Bahhaj
+    Javab
+    Ahad
+    Vahhab
+    Vidad
+    Badi
+    Bahi
+    Abha
+    Vahid
+);
+# }}}
+# months {{{
+my @months = qw(
+    Baha
+    Jalal
+    Jamal
+    'Azamat
+    Nur
+    Rahmat
+    Kalimat
+    Kamal
+    Asma'
+    'Izzat
+    Mashiyyat
+    'Ilm
+    Qudrat
+    Qawl
+    Masa'il
+    Sharaf
+    Sultan
+    Mulk
+    'Ala
+    Ayyam-i-ha
+);
+# }}}
+# days {{{
+my @days = qw(
+    Jalal
+    Jamal
+    Kaml
+    Fidal
+    'Idal
+    Istijlal
+    Istiqlal
+);
+# }}}
+
+# sub bahai_date {{{
+sub bahai_date {
+    my $t = shift;
+    my ($year, $month, $day) = $t
+        ? (localtime($t))[5,4,3]
+        : (localtime)[5,4,3];
+
+    # Fix the year and the month.
+    $year += 1900;
+    $month++;
+
+    # We want to return the day of the week, also.
+    my $dow = day_of_week ($year, $month, $day);
+    my $dow_name = $days[$dow];
+    $dow++;
+
+    # Begin with the first month of the year (at the Spring equinox).
+    my ($m, $d) = (3, 21);
+
+    # Found month flag.
+    my $found = 0;
+
+    for my $n (0 .. 17) {
+        my ($y19, $m19, $d19) = ninteen_days ($year, $m, $d);
+
+        $found = in_month_span ($month, $day, $m, $d, $m19, $d19);
+#        warn $found ? '* ' : '', "$_: $m/$d - ", join ('/', $m19, $d19), "\n";
+
+        # We found our month!
+        if ($found) {
+            $day = delta_month_days ($m, $d - 1, $year, $month, $day);
+            $month = $n;
+            last;
+        }
+
+        # Increment our date.
+        ($m, $d) = ($m19, $d19 + 1);
+    }
+
+    # If we haven't found our month, check 'Ala.
+    if (!$found && ($found = in_month_span ($month, $day, 3, 2, 3, 20))) { 
+        $day = delta_month_days (3, 1, $year, $month, $day);
+        $month = 18;
+#        warn "* $month: 3/2 - 3/20\n";
+    }   
+
+    # If we still didn't find a month, it is Ayyam-i-Ha!
+    unless ($found) {
+        $day = delta_month_days (2, 25, $year, $month, $day);
+        $month = -1;
+    }
+
+    # Get the name of the day.
+    my $day_name = $months[$day - 1];
+
+    # Get the name of the month.
+    my $month_name = $months[$month];
+    # Fix the month number, unless we are in Ayyam-i-ha.
+    $month++ unless $month == -1;
+
+    # Calculate the year.
+    $year -= 1844;
+    my $year_name = $years[($year - 1) % 19];
+    my $cycle_year = $year % 19;
+
+    # Calculate the cycle.
+    my $cycle = int ($year / 19) + 1;
+    my $cycle_name = $years[($cycle - 1) % 19];
+
+    # Compute the Kull-i-Shay.
+    my $kull_i_shay = int ($cycle / 19) + 1;
+
+    return {
+        kull_i_shay => $kull_i_shay,
+        cycle       => $cycle,
+        cycle_name  => $cycle_name,
+        cycle_year  => $cycle_year,
+        year        => $year,
+        year_name   => $year_name,
+        month       => $month,
+        month_name  => $month_name,
+        day         => $day,
+        day_name    => $day_name,
+        dow         => $dow,
+        dow_name    => $dow_name,
+    };
+}
+# }}}
+
+# Helper functions {{{
+# The Baha'i week starts on Saturday.
+sub day_of_week {
+    my ($y, $m, $d) = @_;
+    my $standard = Day_of_Week ($y, $m, $d);
+    $standard++;
+    return $standard > 6 ? 0 : $standard;
+}
+
+# How many days are we into the Baha'i month?
+sub delta_month_days {
+    my ($m1, $d1, $y2, $m2, $d2) = @_;
+    # If Dec-Jan, get the next year.
+    my $y1 = $m1 == 12 && $m2 == 1 ? $y2 + 1 : $y2;
+    return Delta_Days ($y1, $m1, $d1, $y2, $m2, $d2);
+}
+
+# What month are we in?
+sub in_month_span {
+    my ($m, $d, $m1, $d1, $m2, $d2) = @_;
+    # If the months are the same, just check the day range.
+    if ($m1 == $m2 && $m == $m1) {
+        return $d >= $d1 && $d <= $d2 ? 1 : 0;
+    }
+    # The months are different so consider each separately.
+    else {
+        return
+            ($m == $m1 && $d >= $d1)
+            ||
+            ($m == $m2 && $d <= $d2)
+            ? 1 : 0;
+    }
+}
+
+# Return  the standard date ninteen days hence.
+sub ninteen_days {
+    my ($y, $m, $d) = @_;
+    return Add_Delta_Days($y, $m, $d - 1, 19)
+}
+# }}}
+
+1;
+__END__
+
+=head1 NAME
+
+Date::Baha'i - Calculate the numeric and named Baha'i date.
+
+=head1 SYNOPSIS
+
+  use Date::Baha'i;
+
+  $date_hash = bahai_date ();
+
+=head1 ABSTRACT
+
+This package outputs a (numeric and named) Baha'i date from a standard system time stamp.
+
+=head1 DESCRIPTION
+
+The Baha'i year is based on the solar year of 365 days, five hours and some fifty minutes. Each year is divided into nineteen months of nineteen days each with four Intercalary Days (five in a leap year), called Ayyam-i-Ha which Baha'u'llah specified should precede the nineteenth month. New Year's Day (Naw Ruz) falls on the Spring Equinox. This usually occurs on 21 March but if the Equinox falls after sunset on 21 March, Naw Ruz is to be celebrated on 22 March because the Baha'i day begins at sunset.
+
+The names of the months in the Baha'i (Badi) calendar were given by the Bab, who drew them from the nineteen names of God invoked in a prayer said during the month of fasting in Shi'ih Islam. They are:
+
+  1.  Baha      - Splendour (21 March - 8 April)
+  2.  Jalal     - Glory (9 April - 27 April)
+  3.  Jamal     - Beauty (28 April - 16 May)
+  4.  'Azamat   - Grandeur (17 May - 4 June)
+  5.  Nur       - Light (5 June - 23 June)
+  6.  Rahmat    - Mercy (24 June - 12 July)
+  7.  Kalimat   - Words (13 July - 31 July)
+  8.  Kamal     - Perfection (1 August - 19 August)
+  9.  Asma'     - Names (20 August - 7 September)
+  10. 'Izzat    - Might (8 September - 26 September)
+  11. Mashiyyat - Will (27 September - 15 October)
+  12. 'Ilm      - Knowledge (16 October - 3 November)
+  13. Qudrat    - Power (4 November - 22 November)
+  14. Qawl      - Speech (23 November - 11 December)
+  15. Masa'il   - Questions (12 December - 30 December)
+  16. Sharaf    - Honour (31 December - 18 January)
+  17. Sultan    - Sovereignty (19 January - 6 February)
+  18. Mulk      - Dominion (7 February - 25 February)
+  * Ayyam-i-Ha  - Days of Ha (26 February - 1 March))
+  19. 'Ala      - Loftiness (2 March - 20 March)
+
+The days of the Baha'i week are;
+
+  1. Jalal    - Glory (Saturday)
+  2. Jamal    - Beauty (Sunday)
+  3. Kaml     - Perfection (Monday)
+  4. Fidal    - Grace (Tuesday)
+  5. 'Idal    - Justice (Wednesday)
+  6. Istijlal - Majesty (Thursday)
+  7. Istiqlal - Independence (Friday)
+
+The Baha'i day of rest is Isiqlal (Friday) and the Baha'i day begins and ends at sunset.
+
+Each of the days of the month is also given the name of one of the attributes of God. The names are the same as those of the nineteen months. Thus Naw-Ruz, the first day of the first month, would be considered the 'day of Baha of the month Baha'. If it fell on a Saturday, the first day of the Baha'i week, it would be the 'day of jalal'.
+
+Ayyam-i-Ha
+
+Literally, Days of Ha (i.e. the letter Ha, which in the abjad system has the numerical value of 5). Intercalary Days. The four days (five in a leap year) before the last month of the Baha'a year, 'Ala', which is the month of fasting. Baha'u'llah designated the Intercalary days as Ayyam-i-Ha in the Kitab-i-Aqdas and specified when they should be observed; the Bab left this undefined. The Ayyam-i-Ha are devoted to spiritual preparation for the fast, hospitality, feasting, charity and gift giving.  
+
+The Cycles (Vahid)
+
+In His Writings, the Bab divided the years following the date of His Revelation into cycles of nineteen years each.
+
+Each cycle of nineteen years is called a Vahid. Nineteen cycles constitute a period called Kull-i-Shay.
+
+The names of the years in each cycle are: 
+
+  1.  Alif - The Letter "A"
+  2.  Ba - The letter "B"
+  3.  Ab - Father
+  4.  Dal - The letter "D"
+  5.  Bab - Gate
+  6.  Vav - The letter "V"
+  7.  Abad - Eternity
+  8.  Jad - Generosity
+  9.  Baha - Splendour
+  10. Hubb - Love
+  11. Bahhaj - Delightful
+  12. Javab - Answer
+  13. Ahad - Single
+  14. Vahhab - Bountiful
+  15. Vidad - Affection
+  16. Badi - Beginning
+  17. Bahi - Luminous
+  18. Abha - Most Luminous
+  19. Vahid - Unity
+
+There are eleven Holy Days which Baha'is celebrate. On [many] of these days, all work should cease. They are listed in chronological order according to the Baha'i calendar.
+
+* Naw Ruz - March 21
+
+Literally, New Day. The Baha'i New Year. Like the ancient Persian New Year, it occurs on the spring equinox, which generally falls on 21 March. If the equinox falls after sunset on 21 March, Naw Ruz is celebrated on 22 March, since the Baha'i day begins at sunset. For the present, however, the celebration of Naw Ruz is fixed on 21 March. In the Baha'i calandar, Naw Ruz falls on the day of Baha of the month of Baha. The Festival of Naw Ruz marks the end of the month of fasting and is a joyous time of celebration. It is a Baha'i Holy Day on which work is to be suspended.
+
+* Ridvan
+
+  First Day   - 21 April
+  Ninth Day   - 29 April
+  Twelfth Day -  2 May
+
+The Ridvan (pronouced "riz-wan") festival commemorates the first public declaration by Baha'u'llah of His Station and mission (in 1863).
+
+* Declaration of the Bab - 23 May
+
+Commemorates the date in 1844 when the Bab first declared His mission.
+
+* Ascension of Baha'u'llah - 29 May
+
+Commemorates the date in 1892 when Baha'u'llah passed away.
+
+* Martyrdom of the Bab - 9 July
+
+Commemorates the date in 1850 when the Bab was executed by a 750-man firing squad in Tabriz, Ira.
+
+* Birth of the Bab - 20 October
+
+Commemorates the date in 1819 when the Bab was born in Shiraz, Iran
+
+* Birth of Baha'u'llah - 12 November
+
+Commemorates the date in 1817 when Bahá'u'lláh was born in Tihran, Iran
+
+- Work does not have to cease on these Holy Days:
+
+* Day of the Covenant - 26 November
+
+This day is celebrated in lieu of the Birth of 'Abdu'l-Baha, which falls on the same day as the Declaration of the Bab.
+
+* Ascension of 'Abdu'l-Baha - 28 November
+
+Commemorates the day in 1921 when 'Abdu'l-Baha passed away.
+
+* Ayyam-i-Ha - the Intercalary Days - 26 February - 1 March
+
+The Baha'i calendar is made up of 19 months of 19 days each. The period of Ayyam-i-Ha adjusts the Baha'i year to the solar cycle. These days are set aside for hospitality, gift-giving, special acts of charity, and preparing for the Baha'i Fast.
+
+* The Fast - 'Ala - Loftiness (month 19) / 2-20 March
+
+Baha'is fast for 19 days from sunrise to sunset, setting aside time for prayer and meditation. Children under the age of 15, individuals who are ill, travelers, the elderly, pregnant women and nursing mothers are exempt from the fast.
+
+Text taken from
+
+L<http://www.bahaindex.com/calendar.html>
+
+Baha'i Calendar
+
+(days start on the evening before the Gregorian date given)
+
+This new calendar was instituted by the Baha'i spiritual leader Baha'u'llah, who stated that it should begin in the Gregorian year 1844 at the (northern) Spring equinox, which is the traditional Iranian New Year. According to calendars rules, the year begins at the sunset following the equinox, but up to now the practice in the West has been to start the year at sunset on 20 March. This is usually shown as 21 March, with the understanding that the day begins on the evening before. In the Middle East, Baha'is start the year at the sunset in Tehran following the equinox, and the Baha'i Universal House of Justice has not yet decided on the rules of the calendar to be used by all (Reingold and Dershowitz: Calendrical Calculations 2001). For now, I present the calendar as used in the West.
+
+Baha'u'llah proclaimed the fulfillment of all religions and the unity of humankind, and the calendar is designed to be a world calendar, (relatively) free of cultural baggage. It is an entirely solar calendar, without even the vestige of previously lunar months as in the Gregorian Calendar. It has nineteen months of nineteen days, with some extra days before the last month. The cycle of 19 names is used for the names of both the months and the days.
+
+The Vahid is a period of 19 years, and a Kull-i-Shay is 19 Vahids (361 years). These cycles have another set of names: Alif (A,1), Ba (B,2), Ab (Father,3), Dal (D,4), Bab (Gate,5), Vav (V,6), Abad (Eternity,7), Jad (Generosity,8), Baha (Splendour,9), Hubb (Love,10), Bahhaj (Delightful,11), Javab (Answer,12), Ahad (Single,13), Vahhab (Bountiful,14), Vidad (Affection,15), Badi (Beginning,16), Bahi (Luminous,17), Abha (Most Luminous,18), Vahid (Unity,19).
+
+The weekly seven day cycle is still used, and the day of rest is Friday.
+
+Text taken from
+
+L<http://www.moonwise.co.uk/year/159bahai.htm>
+
+=head1 FUNCTIONS
+
+=head2 bahai_date
+
+  bahai_date ()
+
+This function returns a hash reference of the date names and numbers from a time() stamp.
+
+The hashref returned has these keys:
+
+  kull_i_shay
+  cycle
+  cycle_name
+  cycle_year
+  year
+  year_name
+  month
+  month_name
+  day
+  day_name
+  dow
+  dow_name
+
+=head1 DEPENDENCIES
+
+None.
+
+=head1 TODO
+
+Overload localtime().
+
+Convert between Julian dates and unix time stamps and Baha'i dates.
+
+Return lists of months, days, and years, cycles, holy days, etc.
+
+Base the date computation on the time of day (the Baha'i day begins at Sunset).
+
+=head1 HISTORY
+
+See the Changes file in this distribution.
+
+=head1 AUTHOR
+
+Gene Boggs, E<lt>cpan@ology.netE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2003 by Gene Boggs
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. 
+
+=cut
