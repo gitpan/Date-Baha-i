@@ -1,11 +1,10 @@
+#!/usr/bin/perl
 use strict;
+use warnings;
 use Test::More tests => 367;
 use Date::Calc qw(Delta_Days Add_Delta_Days);
 
-BEGIN { use_ok 'Date::Baha::i' };
-
-# NOTE: The TZ functionality is not tested and epoch time conversion
-# uses gmtime, due to local variation.
+use_ok 'Date::Baha::i';
 
 # Test one Baha'i year.
 my @start = (2003, 3, 21);

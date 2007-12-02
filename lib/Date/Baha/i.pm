@@ -1,8 +1,16 @@
-# $Id: i.pm 787 2007-12-02 05:04:55Z gene $
+# $Id: i.pm 793 2007-12-02 08:38:21Z gene $
 package Date::Baha::i;
-our $VERSION = '0.1601';
+our $VERSION = '0.17';
 use strict;
 use warnings;
+use Date::Calc qw(
+    Add_Delta_Days
+    Date_to_Days
+    Day_of_Week
+    leap_year
+);
+use Lingua::EN::Numbers::Ordinate;
+use Lingua::EN::Numbers::Years;
 use base 'Exporter';
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
@@ -17,17 +25,6 @@ use vars qw(@EXPORT @EXPORT_OK);
     to_bahai
     years
 );
-
-use Date::Calc qw(
-    Add_Delta_Days
-    Date_to_Days
-    Day_of_Week
-    leap_year
-);
-use Time::Zone;
-use Lingua::EN::Numbers::Ordinate;
-use Lingua::EN::Numbers qw(American);
-
 
 # Set constants
 use constant FACTOR         =>   19;  # Everything is in groups of 19.
@@ -85,8 +82,8 @@ use constant MONTH_DAY => qw(
 );
 
 # NOTE: Trailing 0's are stripped, resulting in incorrect
-# computations if certain decimals are not quoted...  So I just quote
-# everything.
+# computations if certain decimals are not quoted...
+# So I just quote everything.
 #   Month name   => [Number, Start, End],    # Non-leap year day span
 use constant MONTHS => {
     "Baha"       => [ 0,  '3.21',  '4.08'],  # 80,  98
@@ -208,14 +205,12 @@ sub from_bahai {
 }
 
 sub as_string {
-    # XXX With Lingua::EN::Numbers, naively assume that we only care
-    # about English.
+    # XXX With Lingua::EN::Numbers, naively assume that we only care about English.
     my($date_hash, %args) = @_;
 
     $args{size}     = 1 unless defined $args{size};
     $args{numeric}  = 0 unless defined $args{numeric};
     $args{alpha}    = 1 unless defined $args{alpha};
-    $args{timezone} = 0 unless defined $args{timezone};
 
     my $date;
 
@@ -233,7 +228,7 @@ sub as_string {
         # long alpha-numeric
         # XXX Fugly hacking begins.
         my $month_string = $is_ayyam_i_ha ? '%s%s' : 'the %s month %s';
-        my $n = Lingua::EN::Numbers->new($date_hash->{year});
+        my $n = year2en($date_hash->{year});
 
         $date .= sprintf
             "%s week day %s, %s day %s of $month_string, year %s (%d), %s year %s of the %s vahid %s of the %s kull-i-shay",
@@ -241,7 +236,7 @@ sub as_string {
             ordinate($date_hash->{day}), $date_hash->{day_name},
             ($is_ayyam_i_ha ? '' : ordinate($date_hash->{month})),
             $date_hash->{month_name},
-            lc($n->get_string),
+            $n,
             $date_hash->{year},
             ordinate($date_hash->{cycle_year}),
             $date_hash->{year_name},
@@ -272,49 +267,14 @@ sub as_string {
     else {
         # long alpha
         my $month_string = $is_ayyam_i_ha ? '%s' : 'month %s';
-        my $n = Lingua::EN::Numbers->new($date_hash->{year});
+        my $n = year2en($date_hash->{year});
 
         $date .= sprintf
-            "week day %s, day %s of $month_string, year %s of year %s of the vahid %s of the %s kull-i-shay",
+            "week day %s, day %s of $month_string, year %s, %s of the vahid %s of the %s kull-i-shay",
             @$date_hash{qw(dow_name day_name month_name)},
-            lc($n->get_string),
+            $n,
             @$date_hash{qw(year_name cycle_name)},
             ordinate($date_hash->{kull_i_shay});
-    }
-
-    if($args{timezone}) {
-        my $tz = $date_hash->{timezone};
-        my $n = Lingua::EN::Numbers->new($tz);
-        $n = lc $n->get_string;
-        my $name = uc tz_name();
-        my $gmt = 'seconds from GMT';
-
-        $date .= ', ';
-
-        if($args{size} && $args{numeric} && $args{alpha}) {
-            # long alpha-numeric
-            $date .= "time zone: $name ($tz $gmt)";
-        }
-        elsif(!$args{size} && $args{numeric} && $args{alpha}) {
-            # short alpha-numeric
-            $date .= "$name ($tz)";
-        }
-        elsif($args{size} && $args{alpha}) {
-            #long alpha
-            $date .= "time zone: $name ($n $gmt)";
-        }
-        elsif(!$args{size} && !$args{numeric} && $args{alpha}) {
-            #short alpha
-            $date .= $name;
-        }
-        elsif($args{size} && $args{numeric} && !$args{alpha}) {
-            #long numeric
-            $date .= $tz .'s from GMT';
-        }
-        else {
-            #short numeric
-            $date .= $tz;
-        }
     }
 
     if($date_hash->{holy_day} && $args{size}) {
@@ -426,7 +386,7 @@ sub _build_date {
     # Set the Kull-i-Shay.
     $date{kull_i_shay} = int($date{cycle} / FACTOR) + 1;
 
-    $date{timezone} = tz_local_offset();
+#    $date{timezone} = tz_local_offset();
 
     # Get the holy day.
     my %inverted = _invert_holy_days($year);
@@ -521,24 +481,24 @@ Date::Baha::i - Convert to and from Baha'i dates
       day   => $bahai_day,
   );
 
-  $holy_day = next_holy_day();
-  $holy_day = next_holy_day($year, $month, $day);
+  $day = next_holy_day();
+  $day = next_holy_day($year, $month, $day);
 
   @cycles = cycles();
   @years = years();
   @months = months();
   @days = days();
-  @days_of_the_week = days_of_the_week();
-  %holy_days = holy_days();
+  @days = days_of_the_week();
+  %days = holy_days();
 
 =head1 DESCRIPTION
 
 This package renders the Baha'i date from two standard date formats -
-epoch time and a year/month/day triple.  It also converts a Baha'i 
+epoch time and a (year, month, day) triple.  It also converts a Baha'i 
 date to standard ymd format.
 
-This package is not a date arithmetic calculator.  It simply takes a 
-standard or Baha'i date and converts it to the reverse representation.
+This package is B<not> a date arithmetic calculator.  It converts date
+strings to the reverse representation.
 
 The following passages are excerpts from the C<SEE ALSO> section 
 links.
@@ -550,7 +510,7 @@ youth who volunteered to carry a Tablet from Baha'u'llah to
 Nasiri'd-Din Shah and was upon its delivery tortured and killed.  An 
 alternate translation of the word, used in the calendar itself, is 
 "Beginning".  But regardless of how the calendar came to be called 
-the Badi calendar, it was created by the Bab, and Baha'u'llah 
+the Badi calendar, it was created by the Bab and Baha'u'llah 
 specified a few of the details that His Forerunner had not provided.
 
 The number nineteen has a special significance for Baha'is.  It was 
@@ -562,7 +522,7 @@ The word "vahid", meaning unity, has the numerical value of nineteen,
 and is often used by the Bab and Baha'u'llah when specifying the 
 quantity nineteen.  So the number nineteen, in addition to being a 
 quantity, also is evocative of the central teaching of the Baha'i 
-Faith, unity.  It forms the basis not only of the calendar, but also 
+Faith: unity.  It forms the basis not only of the calendar, but also 
 was integral to the structure of the Persian Bayan (the Bab's Book of 
 laws); is found in Baha'u'llah's laws concerning dowries, the payment 
 of Huquq'u'llah, certain fines, and various prayers; and is even seen 
@@ -829,9 +789,8 @@ hash with the following keys:
   year, year_name,
   month, month_name,
   day, day_name,
-  dow, dow_name,
-  timezone, and
-  holy_day, if there is one.
+  dow, dow_name and
+  holy_day (if there is one)
 
 =head2 from_bahai
 
@@ -862,7 +821,6 @@ Baha'i cycle and Kull-i-Shay are coming soon, to a theatre near you...
       size     => $size,
       alpha    => $alpha,
       numeric  => $numeric,
-      timezone => $timezone,
   );
 
 Return the Baha'i date as a friendly string.
@@ -871,17 +829,14 @@ This function takes a Baha'i date hash and Boolean arguments that
 determine the format of the output.
 
 The "size" argument toggles between short and long representations.
-The "timezone" argument toggles the display of the time zone offset.
 As the names imply, the "alpha" and "numeric" flags turn the 
 alphanumeric representations on or off.  The defaults are as follows:
 
   size     => 1
   alpha    => 1
   numeric  => 0
-  timezone => 0
 
-Thus, "long non-numeric alpha without the timezone" is the default 
-representation.
+Thus, "long non-numeric alpha" is the default representation.
 
 Here are some handy examples (newlines added for readability):
 
@@ -914,8 +869,7 @@ Here are some handy examples (newlines added for readability):
   long alpha with TZ:
   week day Istiqlal, day Baha of month Baha,
   year one hundred fifty nine of year Abad of the vahid Baha of the
-  1st kull-i-shay, with timezone offset of negative six hours,
-  holy day: Naw Ruz
+  1st kull-i-shay, holy day: Naw Ruz
 
   short alpha-numeric:
   Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9)
@@ -926,70 +880,66 @@ Here are some handy examples (newlines added for readability):
 
   long alpha-numeric:
   7th week day Istiqlal, 1st day Baha of the 1st month Baha,
-  year one hundred fifty nine (159), 7th year Abad of the
+  year one hundred and fifty nine (159), 7th year Abad of the
   9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
 
   long alpha-numeric with TZ:
   7th week day Istiqlal, 1st day Baha of the 1st month Baha,
-  year one hundred fifty nine (159), 7th year Abad of the
-  9th vahid Baha of the 1st kull-i-shay,
-  with timezone offset of negative six hours, holy day: Naw Ruz
+  year one hundred and fifty nine (159), 7th year Abad of the
+  9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
 
 =head2 next_holy_day
 
-  $holy_day = next_holy_day();
-  $holy_day = next_holy_day($year, $month, $day);
+  $d = next_holy_day();
+  $d = next_holy_day($year, $month, $day);
 
 This function returns the name of the first holy day after the 
 provided date triple.
 
 =head2 cycles
 
-  @cycles = cycles();
+  @c = cycles();
 
 This function returns the 19 cycle names as an array.
 
 =head2 years
 
-  @years = years();
+  @y = years();
 
 This function returns the 19 year names as an array.
 
 =head2 months
 
-  @months = months();
+  @m = months();
 
 This function returns the 19 month names as an array, along with the 
 intercalary days (Ayyam-i-Ha) as the last element.
 
 =head2 days
 
-  @days = days();
+  @d = days();
 
 This function returns the 19 day names as an array.
 
 =head2 days_of_the_week
 
-  @days = days_of_the_week();
+  @d = days_of_the_week();
 
-This function returns the 7 day-of-the-week names as an array.
+This function returns the seven day-of-the-week names as an array.
 
 =head2 holy_days
 
-  %days = holy_days();
+  %d = holy_days();
 
-This function returns the holy days as a hash, where the keys are 
-the holy day names and the values are array references.  These array 
-references are composed of two or three elements, where the first is 
-the month, the second is the day, and the third is the (optional) 
-number of days observed.  These dates are saved in standard 
-(non-Baha'i) format.
+This function returns the a hash, where the keys are the Holy Day
+names and the values are array references, that are composed of
+either two or three elements, where the first is the month, the second
+is the day, and the third is the (optional) number of days observed.
+These dates are given in standard (non-Baha'i) format.
 
 =head1 SEE ALSO
 
 L<Date::Calc>
-
-L<Time::Zone>
 
 L<Lingua::EN::Numbers>
 
@@ -1008,13 +958,11 @@ C<http://www.moonwise.co.uk/year/160bahai.htm>
 =head1 TO DO
 
 Base the date computation on the time of day (the Baha'i day begins at 
-Sunset) and the location longitude/latitude.
+sunset) with L<Astro::Sunrise>.
+
+Make this L<DateTime> friendly...
 
 Overload localtime and gmtime, just to be cool?
-
-=head1 DEDICATION
-
-Hi Kirsten  :-)
 
 =head1 AUTHOR
 
@@ -1022,13 +970,9 @@ Gene Boggs E<lt>gene@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003 by Gene Boggs
+Copyright 2003-2007 by Gene Boggs
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
-
-=head1 CVS
-
-$Id: i.pm 787 2007-12-02 05:04:55Z gene $
 
 =cut

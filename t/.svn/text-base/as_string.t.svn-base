@@ -25,12 +25,12 @@ my $test_date = {
     year        => 160,
     year_name   => 'Jad',
 };
-my $test_string = "week day Istiqlal, day Baha of month Baha, year one hundred and sixty of year Jad of the vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz";
+my $test_string = "week day Istiqlal, day Baha of month Baha, year one sixty, Jad of the vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz";
 
 use_ok('Date::Baha::i');
 
-# NOTE: The TZ functionality is not tested and epoch time conversion
-# uses gmtime, due to local variation.
+# NOTE: The TZ functionality is not tested here and epoch time
+# conversion uses gmtime, due to tester local variation.
 
 my $date = as_string ($test_date);
 is $date, $test_string,
@@ -60,7 +60,7 @@ $date = as_string ($test_date,
     numeric => 1,
     alpha   => 1,
 );
-is $date, '7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one hundred and sixty (160), 8th year Jad of the 9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz',
+is $date, '7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one sixty (160), 8th year Jad of the 9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz',
     'long alpha-numeric string';
 $date = as_string ($test_date,
     size    => 0,

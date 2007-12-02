@@ -148,3 +148,7 @@ Revision history for Perl extension Date::Baha::i.
 
 0.1601 Sat Dec 1 2007
     - Fixed the "non-numeric" test string that was changed since I last worked on this.
+
+0.17 Sun Dec 2 2007
+    - Improved the as_string() English with TorgoX's Lingua::EN::Numbers::Years package.
+    - Why am I computing timezone logic? This is a *date* module not a time module. TZ is out.
