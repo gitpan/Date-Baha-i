@@ -1,6 +1,6 @@
 # $Id$
 package Date::Baha::i;
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 use strict;
 use warnings;
 use Date::Calc qw(
@@ -9,7 +9,7 @@ use Date::Calc qw(
     Day_of_Week
     leap_year
 );
-use Lingua::EN::Numbers::Ordinate;
+use Lingua::EN::Numbers qw(num2en_ordinal);
 use Lingua::EN::Numbers::Years;
 use base 'Exporter';
 use vars qw(@EXPORT @EXPORT_OK);
@@ -232,17 +232,19 @@ sub as_string {
 
         $date .= sprintf
             "%s week day %s, %s day %s of $month_string, year %s (%d), %s year %s of the %s vahid %s of the %s kull-i-shay",
-            ordinate($date_hash->{dow}), $date_hash->{dow_name},
-            ordinate($date_hash->{day}), $date_hash->{day_name},
-            ($is_ayyam_i_ha ? '' : ordinate($date_hash->{month})),
+            num2en_ordinal($date_hash->{dow}),
+            $date_hash->{dow_name},
+            num2en_ordinal($date_hash->{day}),
+            $date_hash->{day_name},
+            ($is_ayyam_i_ha ? '' : num2en_ordinal($date_hash->{month})),
             $date_hash->{month_name},
             $n,
             $date_hash->{year},
-            ordinate($date_hash->{cycle_year}),
+            num2en_ordinal($date_hash->{cycle_year}),
             $date_hash->{year_name},
-            ordinate($date_hash->{cycle}),
+            num2en_ordinal($date_hash->{cycle}),
             $date_hash->{cycle_name},
-            ordinate($date_hash->{kull_i_shay});
+            num2en_ordinal($date_hash->{kull_i_shay});
     }
     elsif(!$args{size} && $args{numeric}) {
         # short numeric
@@ -252,10 +254,13 @@ sub as_string {
         # long numeric
         $date .= sprintf
             '%s day of the week, %s day of the %s month, year %s, %s year of the %s vahid of the %s kull-i-shay',
-            ordinate($date_hash->{dow}), ordinate($date_hash->{day}),
-            ordinate($date_hash->{month}), $date_hash->{year},
-            ordinate($date_hash->{cycle_year}), ordinate($date_hash->{cycle}),
-            ordinate($date_hash->{kull_i_shay});
+            num2en_ordinal($date_hash->{dow}),
+            num2en_ordinal($date_hash->{day}),
+            num2en_ordinal($date_hash->{month}),
+            $date_hash->{year},
+            num2en_ordinal($date_hash->{cycle_year}),
+            num2en_ordinal($date_hash->{cycle}),
+            num2en_ordinal($date_hash->{kull_i_shay});
     }
     elsif(!$args{size} && $args{alpha}) {
         # short alpha
@@ -274,7 +279,7 @@ sub as_string {
             @$date_hash{qw(dow_name day_name month_name)},
             $n,
             @$date_hash{qw(year_name cycle_name)},
-            ordinate($date_hash->{kull_i_shay});
+            num2en_ordinal($date_hash->{kull_i_shay});
     }
 
     if($date_hash->{holy_day} && $args{size}) {

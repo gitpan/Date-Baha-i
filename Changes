@@ -152,3 +152,8 @@ Revision history for Perl extension Date::Baha::i.
 0.17 Sun Dec 2 2007
     - Improved the as_string() English with TorgoX's Lingua::EN::Numbers::Years package.
     - Why am I computing timezone logic? This is a *date* module not a time module. TZ is out.
+
+0.18 Sun Dec 2 2007
+    - Improved as_string() yet again with num2en_ordinal().
+    - Updated tests for this.
+    - Removed cruft from the Makefile.

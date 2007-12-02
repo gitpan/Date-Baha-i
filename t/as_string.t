@@ -25,7 +25,6 @@ my $test_date = {
     year        => 160,
     year_name   => 'Jad',
 };
-my $test_string = "week day Istiqlal, day Baha of month Baha, year one sixty, Jad of the vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz";
 
 use_ok('Date::Baha::i');
 
@@ -33,7 +32,7 @@ use_ok('Date::Baha::i');
 # conversion uses gmtime, due to tester local variation.
 
 my $date = as_string ($test_date);
-is $date, $test_string,
+is $date, "week day Istiqlal, day Baha of month Baha, year one sixty, Jad of the vahid Baha of the first kull-i-shay, holy day: Naw Ruz",
     'long alpha string';
 $date = as_string ($test_date,
     size    => 0,
@@ -47,7 +46,7 @@ $date = as_string ($test_date,
     numeric => 1,
     alpha   => 0,
 );
-is $date, '7th day of the week, 1st day of the 1st month, year 160, 8th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz',
+is $date, 'seventh day of the week, first day of the first month, year 160, eighth year of the ninth vahid of the first kull-i-shay, holy day: Naw Ruz',
     'long numeric string';
 $date = as_string ($test_date,
     size    => 0,
@@ -60,7 +59,7 @@ $date = as_string ($test_date,
     numeric => 1,
     alpha   => 1,
 );
-is $date, '7th week day Istiqlal, 1st day Baha of the 1st month Baha, year one sixty (160), 8th year Jad of the 9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz',
+is $date, 'seventh week day Istiqlal, first day Baha of the first month Baha, year one sixty (160), eighth year Jad of the ninth vahid Baha of the first kull-i-shay, holy day: Naw Ruz',
     'long alpha-numeric string';
 $date = as_string ($test_date,
     size    => 0,

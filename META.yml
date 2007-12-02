@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Date-Baha-i
-version:             0.17
+version:             0.18
 abstract:            Convert to and from Baha'i dates
 license:             ~
 author:              
@@ -10,9 +10,7 @@ distribution_type:   module
 requires:     
     Date::Calc:                    0
     Lingua::EN::Numbers:           0
-    Lingua::EN::Numbers::Ordinate: 0
     Lingua::EN::Numbers::Years:    0
-    Time::Zone:                    0
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
     version: 1.3
