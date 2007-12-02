@@ -1,6 +1,6 @@
 # $Id$
 package Date::Baha::i;
-our $VERSION = '0.18';
+our $VERSION = '0.1801';
 use strict;
 use warnings;
 use Date::Calc qw(
@@ -505,7 +505,7 @@ date to standard ymd format.
 This package is B<not> a date arithmetic calculator.  It converts date
 strings to the reverse representation.
 
-The following passages are excerpts from the C<SEE ALSO> section 
+The following passages are excerpts from the L</SEE ALSO> section 
 links.
 
 What we usually call the Baha'i calendar is technically called the 
@@ -559,7 +559,7 @@ nineteen to create a time period called a "Kull-i-Shay" (literally,
 "all things").  One Kull-i-Shay is therefore 361 years.
 
 Text taken from
-C<http://www.planetbahai.org/articles/2003/ar032103a.html>
+L<http://www.planetbahai.org/articles/2003/ar032103a.html>
 
 This calendar was instituted by the Baha'i spiritual leader 
 Baha'u'llah, who stated that it should begin in the Gregorian year 
@@ -581,7 +581,7 @@ calendar, without even the vestige of previously lunar months as in
 the Gregorian Calendar.
 
 Text taken from
-C<http://www.moonwise.co.uk/year/159bahai.htm>
+L<http://www.moonwise.co.uk/year/159bahai.htm>
 
 The Baha'i year is based on the solar year of 365 days, five hours and
 some fifty minutes. Each year is divided into nineteen months of 
@@ -694,7 +694,7 @@ public declaration by Baha'u'llah of His Station and mission (in
 
 * Declaration of the Bab - 23 May
 
-Commemorates the date in 1844 when the Bab first declared His mission.
+Commemorates the date in 1844 when the Bab first declared His Mission.
 
 * Ascension of Baha'u'llah - 29 May
 
@@ -702,17 +702,17 @@ Commemorates the date in 1892 when Baha'u'llah passed away.
 
 * Martyrdom of the Bab - 9 July
 
-Commemorates the date in 1850 when the Bab was executed by a 750-man 
-firing squad in Tabriz, Ira.
+Commemorates the date in 1850 when the Bab was executed in Tabriz,
+Iran.
 
 * Birth of the Bab - 20 October
 
-Commemorates the date in 1819 when the Bab was born in Shiraz, Iran
+Commemorates the date in 1819 when the Bab was born in Shiraz, Iran.
 
 * Birth of Baha'u'llah - 12 November
 
 Commemorates the date in 1817 when Baha'u'llah was born in Tihran, 
-Iran
+Iran.
 
 - Work does not have to cease on these Holy Days:
 
@@ -725,7 +725,7 @@ falls on the same day as the Declaration of the Bab.
 
 Commemorates the day in 1921 when 'Abdu'l-Baha passed away.
 
-* Ayyam-i-Ha - the Intercalary Days - 26 February - 1 March
+* Ayyam-i-Ha (the Intercalary Days) 26 February - 1 March
 
 The Baha'i calendar is made up of 19 months of 19 days each. The 
 period of Ayyam-i-Ha adjusts the Baha'i year to the solar cycle. These
@@ -734,13 +734,9 @@ charity, and preparing for the Baha'i Fast.
 
 * The Fast - 'Ala - Loftiness (month 19) / 2-20 March
 
-Baha'is fast for 19 days from sunrise to sunset, setting aside time 
-for prayer and meditation. Children under the age of 15, individuals 
-who are ill, travelers, the elderly, pregnant women and nursing 
-mothers are exempt from the fast.
+Baha'is fast for 19 days from sunrise to sunset.
 
-Text taken from
-C<http://www.bahaindex.com/calendar.html>
+Text taken from L<http://www.bahaindex.com/calendar.html>
 
 =head1 EXPORTED FUNCTIONS
 
@@ -837,41 +833,40 @@ The "size" argument toggles between short and long representations.
 As the names imply, the "alpha" and "numeric" flags turn the 
 alphanumeric representations on or off.  The defaults are as follows:
 
-  size     => 1
   alpha    => 1
   numeric  => 0
+  size     => 1
 
-Thus, "long non-numeric alpha" is the default representation.
+Which mean that "long non-numeric alpha" is the default representation.
 
 Here are some handy examples (newlines added for readability):
 
   short numeric:
   1/1/159
 
-  short numeric with TZ:
-  1/1/159, -6
+  short numeric:
+  1/1/159
 
   long numeric:
   7th day of the week, 1st day of the 1st month, year 159,
   7th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz
 
-  long numeric with TZ:
+  long numeric:
   7th day of the week, 1st day of the 1st month, year 159,
-  7th year of the 9th vahid of the 1st kull-i-shay, TZ -6h,
-  holy day: Naw Ruz
+  7th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz
 
   short alpha:
   Istiqlal, Baha of Baha, Abad of Baha
 
-  short alpha with TZ:
-  Istiqlal, Baha of Baha, Abad of Baha, TZ -6h
+  short alpha
+  Istiqlal, Baha of Baha, Abad of Baha
 
   long alpha:
   week day Istiqlal, day Baha of month Baha,
   year one hundred fifty nine of year Abad of the vahid Baha of the
   1st kull-i-shay, holy day: Naw Ruz
 
-  long alpha with TZ:
+  long alpha:
   week day Istiqlal, day Baha of month Baha,
   year one hundred fifty nine of year Abad of the vahid Baha of the
   1st kull-i-shay, holy day: Naw Ruz
@@ -879,16 +874,15 @@ Here are some handy examples (newlines added for readability):
   short alpha-numeric:
   Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9)
 
-  short alpha-numeric with TZ:
-  Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9),
-  TZ -6h
+  short alpha-numeric:
+  Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9)
 
   long alpha-numeric:
   7th week day Istiqlal, 1st day Baha of the 1st month Baha,
   year one hundred and fifty nine (159), 7th year Abad of the
   9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
 
-  long alpha-numeric with TZ:
+  long alpha-numeric:
   7th week day Istiqlal, 1st day Baha of the 1st month Baha,
   year one hundred and fifty nine (159), 7th year Abad of the
   9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
@@ -937,9 +931,8 @@ This function returns the seven day-of-the-week names as an array.
   %d = holy_days();
 
 This function returns the a hash, where the keys are the Holy Day
-names and the values are array references, that are composed of
-either two or three elements, where the first is the month, the second
-is the day, and the third is the (optional) number of days observed.
+names and the values are array references, of either two or three
+elements: month, day and the (optional) number of days observed.
 These dates are given in standard (non-Baha'i) format.
 
 =head1 SEE ALSO
@@ -948,17 +941,17 @@ L<Date::Calc>
 
 L<Lingua::EN::Numbers>
 
-L<Lingua::EN::Numbers::Ordinate>
+L<Lingua::EN::Numbers::Years>
 
-C<http://www.projectpluto.com/calendar.htm#bahai> (Very interesting)
+L<http://www.projectpluto.com/calendar.htm#bahai> (Very interesting)
 
 The following are partially quoted above:
 
-C<http://www.planetbahai.org/articles/2003/ar032103a.html>
+L<http://www.planetbahai.org/articles/2003/ar032103a.html>
 
-C<http://www.bahaindex.com/calendar.html>
+L<http://www.bahaindex.com/calendar.html>
 
-C<http://www.moonwise.co.uk/year/160bahai.htm>
+L<http://www.moonwise.co.uk/year/160bahai.htm>
 
 =head1 TO DO
 

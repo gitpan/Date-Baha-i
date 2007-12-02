@@ -157,3 +157,6 @@ Revision history for Perl extension Date::Baha::i.
     - Improved as_string() yet again with num2en_ordinal().
     - Updated tests for this.
     - Removed cruft from the Makefile.
+
+0.1801 Sun Dec 2 2007
+    - Repaired crusty POD. *No code changes.*
