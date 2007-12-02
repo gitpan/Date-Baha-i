@@ -12,8 +12,6 @@ To install this module type the following:
 
 DEPENDENCIES
 
-Test::More
-
 Date::Calc
 
 Time::Zone
@@ -24,7 +22,7 @@ Lingua::EN::Numbers::Ordinate
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2003 Gene Boggs
+Copyright (C) 2003-2007 Gene Boggs
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

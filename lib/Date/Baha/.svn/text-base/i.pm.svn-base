@@ -1,4 +1,4 @@
-# $Id: i.pm 787 2007-12-02 05:04:55Z gene $
+# $Id$
 package Date::Baha::i;
 our $VERSION = '0.1601';
 use strict;
@@ -1029,6 +1029,6 @@ it under the same terms as Perl itself.
 
 =head1 CVS
 
-$Id: i.pm 787 2007-12-02 05:04:55Z gene $
+$Id$
 
 =cut

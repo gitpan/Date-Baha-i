@@ -1,9 +1,11 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
 use ExtUtils::MakeMaker;
 WriteMakefile(
-    'NAME' => 'Date::Baha::i',
-    'VERSION_FROM' => 'lib/Date/Baha/i.pm',
-    'PREREQ_PM' => {
-        'Test::More' => 0,
+    NAME => 'Date::Baha::i',
+    VERSION_FROM => 'lib/Date/Baha/i.pm',
+    PREREQ_PM => {
         'Date::Calc' => 0,
         'Time::Zone' => 0,
         'Lingua::EN::Numbers' => 0,
