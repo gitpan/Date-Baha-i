@@ -1,6 +1,6 @@
-# $Id: i.pm 796 2007-12-02 23:49:16Z gene $
+# $Id: i.pm 803 2007-12-03 22:19:41Z gene $
 package Date::Baha::i;
-our $VERSION = '0.1801';
+our $VERSION = '0.1802';
 use strict;
 use warnings;
 use Date::Calc qw(

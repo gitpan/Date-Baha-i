@@ -1,6 +1,6 @@
 # $Id$
 package Date::Baha::i;
-our $VERSION = '0.1801';
+our $VERSION = '0.1802';
 use strict;
 use warnings;
 use Date::Calc qw(

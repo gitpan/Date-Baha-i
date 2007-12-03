@@ -160,3 +160,6 @@ Revision history for Perl extension Date::Baha::i.
 
 0.1801 Sun Dec 2 2007
     - Repaired crusty POD. *No code changes.*
+
+0.1802 Mon Dec 3 2007
+    - Whoops. Need to require 5.6 in the Makefile.
