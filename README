@@ -1,28 +1,48 @@
-Date/Baha/i distribution
-========================
+Date-Baha-i
 
 INSTALLATION
 
-To install this module type the following:
+To install this module, run the following commands:
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+	perl Makefile.PL
+	make
+	make test
+	make install
 
-DEPENDENCIES
+SUPPORT AND DOCUMENTATION
 
-Date::Calc
+After installing, you can find documentation for this module with the
+perldoc command.
 
-Time::Zone
+    perldoc Date::Baha::i
 
-Lingua::EN::Numbers
+You can also look for information at:
 
-Lingua::EN::Numbers::Ordinate
+    RT, CPAN's request tracker
+        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Date-Baha-i
 
-COPYRIGHT AND LICENCE
+    AnnoCPAN, Annotated CPAN documentation
+        http://annocpan.org/dist/Date-Baha-i
 
-Copyright (C) 2003-2007 Gene Boggs
+    CPAN Ratings
+        http://cpanratings.perl.org/d/Date-Baha-i
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+    Search CPAN
+        http://search.cpan.org/dist/Date-Baha-i/
+
+BUGS
+
+Please report any bugs or feature requests to C<bug-date-baha-i at rt.cpan.org>, or through
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Date-Baha-i>.  I will be notified, and then you'll
+automatically be notified of progress on your bug as I make changes.
+
+LICENSE AND COPYRIGHT
+
+Copyright (C) 2010 Gene Boggs
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
+

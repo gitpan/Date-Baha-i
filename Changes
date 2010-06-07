@@ -1,4 +1,11 @@
-Revision history for Perl extension Date::Baha::i.
+Revision history for Date-Baha-i
+
+0.19  2010.06.06
+    - Refactored with Module::Starter.
+    - Removed needless POD.
+    - Removed zero padding in hopes that my failing test will pass...
+
+** And now: Reverse history! **
 
 0.01  Tue Mar  4 17:53:30 2003
 	- original version; created by h2xs 1.22 with options
@@ -16,7 +23,7 @@ Revision history for Perl extension Date::Baha::i.
     - Updated the test suite, of course.
 
 0.03.1  Wed Mar  5 2003
-    - Ack!  I'm a retard!  I kept forgetting to add Date::Calc to the Makefile.PL dependencies.  *sob*
+    - Ack! I kept forgetting to add Date::Calc to the Makefile.PL dependencies.  *sob*
 
 0.04  Wed Mar  5 2003
     - Added a Gregorian to Baha'i date function.

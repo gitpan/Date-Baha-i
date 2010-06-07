@@ -1,0 +1,26 @@
+Date-Baha-i=~/dev/Time/Date-Baha-i CD=. {
+ prev=~/tdev/Date-Baha-i/ {
+  lib/Date/Baha/i.pm
+  t/as_string.t
+  t/from_bahai.t
+  t/misc.t
+  t/to_bahai.t
+ }
+ lib=lib/Date/Baha {
+  i.pm
+ }
+ t=t {
+  00-load.t
+  01-as_string.t
+  02-from_bahai.t
+  03-misc.t
+  04-to_bahai.t
+  boilerplate.t
+  pod-coverage.t
+  pod.t
+ }
+ Changes
+ MANIFEST.SKIP
+ Makefile.PL
+ README
+}

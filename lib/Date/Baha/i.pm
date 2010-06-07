@@ -1,6 +1,6 @@
-# $Id: i.pm 803 2007-12-03 22:19:41Z gene $
 package Date::Baha::i;
-our $VERSION = '0.1802';
+
+our $VERSION = '0.19';
 use strict;
 use warnings;
 use Date::Calc qw(
@@ -395,7 +395,7 @@ sub _build_date {
 
     # Get the holy day.
     my %inverted = _invert_holy_days($year);
-    my $m_d = sprintf '%d.%02d', $month, $day;
+    my $m_d = sprintf '%d.%d', $month, $day;
     $date{holy_day} = $inverted{$m_d} if exists $inverted{$m_d};
 
     return wantarray ? %date : as_string(\%date, %args);
@@ -420,7 +420,7 @@ sub _invert_holy_days {
                 );
 
                 # Pre-pad the day number with a zero.
-                $inverted{ sprintf '%d.%02d', $month, $day } = $name;
+                $inverted{ sprintf '%d.%d', $month, $day } = $name;
             }
         }
     }
@@ -445,7 +445,6 @@ sub _ymd {
 
     return $args{year}, $args{month}, $args{day};
 }
-
 
 1;
 __END__
@@ -502,64 +501,9 @@ This package renders the Baha'i date from two standard date formats -
 epoch time and a (year, month, day) triple.  It also converts a Baha'i 
 date to standard ymd format.
 
-This package is B<not> a date arithmetic calculator.  It converts date
-strings to the reverse representation.
+The following are excerpts from the L</SEE ALSO> section
 
-The following passages are excerpts from the L</SEE ALSO> section 
-links.
-
-What we usually call the Baha'i calendar is technically called the 
-Badi calendar.  The word "Badi" means "Wonderful" and was the name 
-of several people of importance in Baha'i history, most notably the 
-youth who volunteered to carry a Tablet from Baha'u'llah to 
-Nasiri'd-Din Shah and was upon its delivery tortured and killed.  An 
-alternate translation of the word, used in the calendar itself, is 
-"Beginning".  But regardless of how the calendar came to be called 
-the Badi calendar, it was created by the Bab and Baha'u'llah 
-specified a few of the details that His Forerunner had not provided.
-
-The number nineteen has a special significance for Baha'is.  It was 
-common in Persian mystical writings to utilize a system of numerical 
-values to convey meanings beyond what mere words could impart.
-Within this system, words are assigned numerical values, and 
-relationships between words can be implied based upon these values. 
-The word "vahid", meaning unity, has the numerical value of nineteen,
-and is often used by the Bab and Baha'u'llah when specifying the 
-quantity nineteen.  So the number nineteen, in addition to being a 
-quantity, also is evocative of the central teaching of the Baha'i 
-Faith: unity.  It forms the basis not only of the calendar, but also 
-was integral to the structure of the Persian Bayan (the Bab's Book of 
-laws); is found in Baha'u'llah's laws concerning dowries, the payment 
-of Huquq'u'llah, certain fines, and various prayers; and is even seen 
-in the history of the Faith, as Baha'u'llah's public declaration of 
-His mission took place nineteen years after the Bab's declaration.
-
-Now we come to the days of the month themselves. As is the case with 
-Jewish and Islamic reckoning, the day begins at sunset, rather than 
-at midnight.  For most of us, this takes a bit of getting used to! 
-It becomes important because certain things happen on specific days. 
-The first day of each Baha'i month is designated as a Feast day.  The 
-Feast is a community gathering that incorporates worship, community 
-business, and socializing.  It is the foundation of Baha'i community 
-life and is primarily administrative in nature.  When Baha'is gather 
-for the Feast of (say) Baha, the first month of the year, you might 
-think that the date on which they should gather is, in the Gregorian 
-calendar, March 21st.  But they may actually hold their Feasts 
-anytime between sunset on March 20th and before sunset on March 21st. 
-That time period is the first day of Baha.  Holy Days are also 
-reckoned in this fashion, as are the times for the start and end of 
-the Fast.
-
-Finally, for those who like to go into excruciating detail, the Bab 
-also spoke of time periods longer than a year.  He grouped years into 
-"Vahids" of nineteen years each, and gave each Vahid a name.  (It is 
-here that the word "Badi" appears, as the name of the sixteenth year 
-in the cycle.)  He further grouped the Vahids themselves into sets of 
-nineteen to create a time period called a "Kull-i-Shay" (literally, 
-"all things").  One Kull-i-Shay is therefore 361 years.
-
-Text taken from
-L<http://www.planetbahai.org/articles/2003/ar032103a.html>
+=head2 EXCERPT 1
 
 This calendar was instituted by the Baha'i spiritual leader 
 Baha'u'llah, who stated that it should begin in the Gregorian year 
@@ -580,14 +524,41 @@ of humankind, and the calendar is designed to be a world calendar,
 calendar, without even the vestige of previously lunar months as in 
 the Gregorian Calendar.
 
-Text taken from
-L<http://www.moonwise.co.uk/year/159bahai.htm>
+=head2 EXCERPT 2
 
 The Baha'i year is based on the solar year of 365 days, five hours and
 some fifty minutes. Each year is divided into nineteen months of 
 nineteen days each with four Intercalary Days (five in a leap year), 
 called Ayyam-i-Ha which Baha'u'llah specified should precede the 
 nineteenth month.
+
+=head2 EXCERPT 3
+
+The number nineteen has a special significance for Baha'is.  It was 
+common in Persian mystical writings to utilize a system of numerical 
+values to convey meanings beyond what mere words could impart.
+Within this system, words are assigned numerical values, and 
+relationships between words can be implied based upon these values. 
+The word "vahid", meaning unity, has the numerical value of nineteen,
+and is often used by the Bab and Baha'u'llah when specifying the 
+quantity nineteen.  So the number nineteen, in addition to being a 
+quantity, also is evocative of the central teaching of the Baha'i 
+Faith: unity.  It forms the basis not only of the calendar, but also 
+was integral to the structure of the Persian Bayan (the Bab's Book of 
+laws); is found in Baha'u'llah's laws concerning dowries, the payment 
+of Huquq'u'llah, certain fines, and various prayers; and is even seen 
+in the history of the Faith, as Baha'u'llah's public declaration of 
+His mission took place nineteen years after the Bab's declaration.
+
+Finally, for those who like to go into excruciating detail, the Bab 
+also spoke of time periods longer than a year.  He grouped years into 
+"Vahids" of nineteen years each, and gave each Vahid a name.  (It is 
+here that the word "Badi" appears, as the name of the sixteenth year 
+in the cycle.)  He further grouped the Vahids themselves into sets of 
+nineteen to create a time period called a "Kull-i-Shay" (literally, 
+"all things").  One Kull-i-Shay is therefore 361 years.
+
+=head2 DAY NAMES
 
 The days of the Baha'i week are:
 
@@ -601,6 +572,8 @@ The days of the Baha'i week are:
 
 The Baha'i day of rest is Isiqlal (Friday) and the Baha'i day begins 
 and ends at sunset.
+
+=head2 MONTH NAMES
 
 The names of the months in the Baha'i (Badi) calendar were given by 
 the Bab, who drew them from the nineteen names of God invoked in a 
@@ -627,21 +600,13 @@ prayer said during the month of fasting in Shi'ih Islam. They are:
   *   Ayyam-i-Ha - Days of Ha (26 February - 1 March))
   19. 'Ala       - Loftiness (2 March - 20 March)
 
-Ayyam-i-Ha:
+=head2 AYYAM-I-HA
 
 Literally, Days of Ha (i.e. the letter Ha, which in the abjad system 
 has the numerical value of 5). Intercalary Days. The four days (five 
-in a leap year) before the last month of the Baha'a year, 'Ala', which
-is the month of fasting. Baha'u'llah designated the Intercalary days 
-as Ayyam-i-Ha in the Kitab-i-Aqdas and specified when they should be 
-observed; the Bab left this undefined. The Ayyam-i-Ha are devoted to 
-spiritual preparation for the fast, hospitality, feasting, charity and
-gift giving.  
+in a leap year) before the last month of the Baha'a year, "Ala."
 
-The Cycles (Vahid)
-
-In His Writings, the Bab divided the years following the date of His 
-Revelation into cycles of nineteen years each.
+=head2 CYCLES
 
 Each cycle of nineteen years is called a Vahid. Nineteen cycles 
 constitute a period called Kull-i-Shay.
@@ -668,9 +633,9 @@ The names of the years in each cycle are:
   18. Abha   - Most Luminous
   19. Vahid  - Unity
 
-There are eleven Holy Days which Baha'is celebrate. On [many] of these
-days, all work should cease. They are listed in chronological order 
-according to the Baha'i calendar.
+=head2 HOLY DAYS
+
+There are eleven Holy Days which Baha'is celebrate.
 
 * Naw Ruz - (Generally) March 21
 
@@ -736,9 +701,7 @@ charity, and preparing for the Baha'i Fast.
 
 Baha'is fast for 19 days from sunrise to sunset.
 
-Text taken from L<http://www.bahaindex.com/calendar.html>
-
-=head1 EXPORTED FUNCTIONS
+=head1 EXPORT
 
 =head2 to_bahai
 
@@ -812,8 +775,7 @@ hash with the following keys:
 This function returns either a string or a list of the standard date 
 from a year, month, day triple of the Baha'i date.
 
-* Currently, this only supports the Baha'i year, month and day.  The
-Baha'i cycle and Kull-i-Shay are coming soon, to a theatre near you...
+Currently, this only supports the Baha'i year, month and day.
 
 =head2 as_string
 
@@ -958,19 +920,26 @@ L<http://www.moonwise.co.uk/year/160bahai.htm>
 Base the date computation on the time of day (the Baha'i day begins at 
 sunset) with L<Astro::Sunrise>.
 
-Make this L<DateTime> friendly...
+Make this a L<DateTime> module...
+
+Support cycles and Kull-i-Shay.
 
 Overload localtime and gmtime, just to be cool?
 
 =head1 AUTHOR
 
-Gene Boggs E<lt>gene@cpan.orgE<gt>
+Gene Boggs, C<< <gene at cpan.org> >>
 
-=head1 COPYRIGHT AND LICENSE
+=head1 LICENSE AND COPYRIGHT
 
-Copyright 2003-2007 by Gene Boggs
+Copyright 2003-2010 Gene Boggs.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
 
 =cut
+
+1; # End of Date::Baha::i
