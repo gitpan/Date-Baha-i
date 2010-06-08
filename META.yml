@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Date-Baha-i
-version:            0.19
+version:            0.1901
 abstract:           Convert to and from Baha'i dates
 author:
     - Gene Boggs <gene@cpan.org>
@@ -11,7 +11,10 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
-    Test::More:  0
+    Date::Calc:           0
+    Lingua::EN::Numbers:  0
+    Lingua::EN::Numbers::Years:  0
+    Test::More:           0
 no_index:
     directory:
         - t

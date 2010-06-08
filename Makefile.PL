@@ -13,6 +13,9 @@ WriteMakefile(
     PL_FILES            => {},
     PREREQ_PM => {
         'Test::More' => 0,
+        'Date::Calc' => 0,
+        'Lingua::EN::Numbers' => 0,
+        'Lingua::EN::Numbers::Years' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Date-Baha-i-*' },
