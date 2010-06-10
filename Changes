@@ -1,5 +1,11 @@
 Revision history for Date-Baha-i
 
+0.1902  2010.06.09
+    - Test with normalized date format to (hopefully) fix from_bahai.t.
+
+0.1901  2010.06.07
+    - Forgot to flesh-out my Makefile.PL. Oops.
+
 0.19  2010.06.06
     - Refactored with Module::Starter.
     - Removed needless POD.

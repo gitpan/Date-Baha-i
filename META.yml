@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Date-Baha-i
-version:            0.1901
+version:            0.1902
 abstract:           Convert to and from Baha'i dates
 author:
     - Gene Boggs <gene@cpan.org>

@@ -15,15 +15,16 @@ my ($year, $month, $day, $max) = (160, 1, 1, 19);
 
 for(0 .. Delta_Days(@start, @stop)) {
     # Increment our test sample date.
-    my @date = Add_Delta_Days(@start, $_);
+    my @x = Add_Delta_Days(@start, $_);
+    my $x = sprintf '%4d/%02d/%02d', @x;
 
-    my @test = from_bahai(
+    my @y = from_bahai(
         year  => $year,
         month => $month,
         day   => $day,
     );
-    is_deeply \@test, \@date,
-        join('/', @test) . ' => ' . join('/', @date);
+    my $y = sprintf '%4d/%02d/%02d', @y;
+    is $x, $y, "$x is $y";
 
     # Increment our test control date.
     $day++;
