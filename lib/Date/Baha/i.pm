@@ -1,17 +1,17 @@
 package Date::Baha::i;
+BEGIN {
+  $Date::Baha::i::AUTHORITY = 'cpan:GENE';
+}
 
-our $VERSION = '0.1902';
+# ABSTRACT: Convert to and from Baha'i dates
+
+our $VERSION = '0.1903';
+
+
 use strict;
 use warnings;
-use Date::Calc qw(
-    Add_Delta_Days
-    Date_to_Days
-    Day_of_Week
-    leap_year
-);
-use Lingua::EN::Numbers qw(num2en_ordinal);
-use Lingua::EN::Numbers::Years;
-use base 'Exporter';
+
+use parent 'Exporter';
 use vars qw(@EXPORT @EXPORT_OK);
 @EXPORT = @EXPORT_OK = qw(
     as_string
@@ -26,16 +26,27 @@ use vars qw(@EXPORT @EXPORT_OK);
     years
 );
 
+use Date::Calc qw(
+    Add_Delta_Days
+    Date_to_Days
+    Day_of_Week
+    leap_year
+);
+use Lingua::EN::Numbers qw(num2en_ordinal);
+use Lingua::EN::Numbers::Years;
+
 # Set constants
-use constant FACTOR         =>   19;  # Everything is in groups of 19.
-use constant FEBRUARY       =>    2;
-use constant MARCH          =>    3;
-use constant SHARAF         =>   16;
-use constant LAST_START_DAY =>    2;  # First day of the fast.
-use constant YEAR_START_DAY =>   21;  # Vernal equinox.
-use constant LEAP_START_DAY =>   26;  # The intercalary days.
-use constant FIRST_YEAR     => 1844;
-use constant ADJUST_YEAR    => 1900;
+use constant FACTOR         =>   19;  # Groups of 19
+use constant FEBRUARY       =>    2;  # Handy
+use constant MARCH          =>    3;  # Handy
+use constant SHARAF         =>   16;  # Handy
+use constant LAST_START_DAY =>    2;  # 1st day of fast
+use constant YEAR_START_DAY =>   21;  # Vernal equinox
+use constant LEAP_START_DAY =>   26;  # Intercalary days
+use constant FIRST_YEAR     => 1844;  # History!
+use constant ADJUST_YEAR    => 1900;  # Year factor
+
+
 use constant CYCLE_YEAR => qw(
     Alif
     Ba
@@ -57,7 +68,6 @@ use constant CYCLE_YEAR => qw(
     Abha
     Vahid
 );
-
 use constant MONTH_DAY => qw(
     Baha
     Jalal
@@ -81,10 +91,9 @@ use constant MONTH_DAY => qw(
     Ayyam-i-Ha
 );
 
-# NOTE: Trailing 0's are stripped, resulting in incorrect
-# computations if certain decimals are not quoted...
-# So I just quote everything.
-#   Month name   => [Number, Start, End],    # Non-leap year day span
+
+# We quote floats to avoid mis-computation.
+# Month => [Number, Start, End] # TODO ?, ?
 use constant MONTHS => {
     "Baha"       => [ 0,  '3.21',  '4.08'],  # 80,  98
     "Jalal"      => [ 1,  '4.09',  '4.27'],  # 99, 117
@@ -108,6 +117,7 @@ use constant MONTHS => {
     "'Ala"       => [18,  '3.02',  '3.20'],  # 61,  79
 };
 
+
 use constant DOW_NAME => qw(
     Jalal
     Jamal
@@ -117,6 +127,7 @@ use constant DOW_NAME => qw(
     Istijlal
     Istiqlal
 );
+
 
 use constant HOLY_DAYS => {
     # Work suspended':
@@ -137,21 +148,19 @@ use constant HOLY_DAYS => {
     "Ascension of 'Abdu'l-Baha" => [ '11.28' ],
 };
 
-
 # List return functions
-sub cycles { return CYCLE_YEAR }
-sub years { return CYCLE_YEAR }
-sub months { return MONTH_DAY }
-sub days { return (MONTH_DAY)[0 .. 18] }
+sub cycles           { return CYCLE_YEAR }
+sub years            { return CYCLE_YEAR }
+sub months           { return MONTH_DAY }
+sub days             { return (MONTH_DAY)[0 .. 18] }
 sub days_of_the_week { return DOW_NAME }
-sub holy_days { return HOLY_DAYS }
-
+sub holy_days        { return HOLY_DAYS }
 
 sub to_bahai {
     my %args = @_;
 
     # Grab the ymd from the arguments if they have been passed in.
-    my($year, $month, $day) = @args{qw(year month day)};
+    my ($year, $month, $day) = @args{qw(year month day)};
     # Make sure we have a proper ymd before proceeding.
     ($year, $month, $day) = _ymd(
         %args,
@@ -160,14 +169,14 @@ sub to_bahai {
         day   => $day,
     );
 
-    my($bahai_month, $bahai_day);
+    my ($bahai_month, $bahai_day);
 
-    for(values %{ MONTHS() }) {
-        my($days, $lower, $upper) = _setup_date_comparison(
+    for (values %{ MONTHS() }) {
+        my ($days, $lower, $upper) = _setup_date_comparison(
             $year, $month, $day, @$_[1,2]
         );
 
-        if($days >= $lower && $days <= $upper) {
+        if ($days >= $lower && $days <= $upper) {
             $bahai_month = $_->[0];
             $bahai_day = $days - $lower;
             last;
@@ -180,7 +189,6 @@ sub to_bahai {
         %args
     );
 }
-
 
 sub from_bahai {
     my %args = @_;
@@ -206,7 +214,7 @@ sub from_bahai {
 
 sub as_string {
     # XXX With Lingua::EN::Numbers, naively assume that we only care about English.
-    my($date_hash, %args) = @_;
+    my ($date_hash, %args) = @_;
 
     $args{size}     = 1 unless defined $args{size};
     $args{numeric}  = 0 unless defined $args{numeric};
@@ -216,7 +224,7 @@ sub as_string {
 
     my $is_ayyam_i_ha = $date_hash->{month} == -1 ? 1 : 0;
 
-    if(!$args{size} && $args{numeric} && $args{alpha}) {
+    if (!$args{size} && $args{numeric} && $args{alpha}) {
         # short alpha-numeric
         $date .= sprintf '%s (%d), %s (%d) of %s (%d), year %d, %s (%d) of %s (%d)',
             @$date_hash{qw(
@@ -224,7 +232,7 @@ sub as_string {
                 year year_name cycle_year cycle_name cycle
             )};
     }
-    elsif($args{size} && $args{numeric} && $args{alpha}) {
+    elsif ($args{size} && $args{numeric} && $args{alpha}) {
         # long alpha-numeric
         # XXX Fugly hacking begins.
         my $month_string = $is_ayyam_i_ha ? '%s%s' : 'the %s month %s';
@@ -246,11 +254,11 @@ sub as_string {
             $date_hash->{cycle_name},
             num2en_ordinal($date_hash->{kull_i_shay});
     }
-    elsif(!$args{size} && $args{numeric}) {
+    elsif (!$args{size} && $args{numeric}) {
         # short numeric
         $date .= sprintf '%s/%s/%s', @$date_hash{qw(month day year)};
     }
-    elsif($args{size} && $args{numeric}) {
+    elsif ($args{size} && $args{numeric}) {
         # long numeric
         $date .= sprintf
             '%s day of the week, %s day of the %s month, year %s, %s year of the %s vahid of the %s kull-i-shay',
@@ -262,7 +270,7 @@ sub as_string {
             num2en_ordinal($date_hash->{cycle}),
             num2en_ordinal($date_hash->{kull_i_shay});
     }
-    elsif(!$args{size} && $args{alpha}) {
+    elsif (!$args{size} && $args{alpha}) {
         # short alpha
         $date .= sprintf '%s, %s of %s, %s of %s',
             @$date_hash{qw(
@@ -282,7 +290,7 @@ sub as_string {
             num2en_ordinal($date_hash->{kull_i_shay});
     }
 
-    if($date_hash->{holy_day} && $args{size}) {
+    if ($date_hash->{holy_day} && $args{size}) {
         $date .= ', holy day: ' . join '', keys %{ $date_hash->{holy_day} };
     }
 
@@ -290,7 +298,7 @@ sub as_string {
 }
 
 sub next_holy_day {
-    my($year, $month, $day) = @_;
+    my ($year, $month, $day) = @_;
 
     # Use today if we are not provided with a date.
     ($year, $month, $day) = _ymd(
@@ -308,8 +316,8 @@ sub next_holy_day {
     my $holy_date;
 
     # Find the first date greater than the one provided.
-    for(@sorted) {
-        if($m_d < $_) {
+    for (@sorted) {
+        if ($m_d < $_) {
             $holy_date = $_;
             last;
         }
@@ -329,20 +337,20 @@ sub next_holy_day {
 # Helper functions
 # Date comparison gymnastics.
 sub _setup_date_comparison {
-    my($y, $m, $d, $s, $e) = @_;
+    my ($y, $m, $d, $s, $e) = @_;
 
     # Dates are encoded as decimals.
-    my($start_month, $start_day) = split /\./, $s;
-    my($end_month, $end_day) = split /\./, $e;
+    my ($start_month, $start_day) = split /\./, $s;
+    my ($end_month, $end_day) = split /\./, $e;
 
     # Slide either the start or end year, given the month we're
     # looking at.
-    my($start_year, $end_year) = ($y, $y);
-    if($end_month < $start_month) {
-        if($m == $start_month) {
+    my ($start_year, $end_year) = ($y, $y);
+    if ($end_month < $start_month) {
+        if ($m == $start_month) {
             $end_year++;
         }
-        elsif($m == $end_month) {
+        elsif ($m == $end_month) {
             $start_year--;
         }
     }
@@ -354,7 +362,7 @@ sub _setup_date_comparison {
 }
 
 sub _build_date {
-    my($year, $month, $day, $new_month, $new_day, %args) = @_;
+    my ($year, $month, $day, $new_month, $new_day, %args) = @_;
 
     my %date;
     @date{qw(month day)} = ($new_month, $new_day);
@@ -406,15 +414,15 @@ sub _invert_holy_days {
 
     my %inverted;
 
-    while(my($name, $date) = each %{ HOLY_DAYS() }) {
+    while (my ($name, $date) = each %{ HOLY_DAYS() }) {
         $inverted{$date->[0]} = $name;
 
         # Does this date contain a day span?
-        if(@$date > 1) {
+        if (@$date > 1) {
             # Increment the Ayyam-i-Ha day if we are in a leap year.
             $date->[1]++ if $name eq 'Ayyam-i-Ha' && leap_year($year);
 
-            for(1 .. $date->[1] - 1) {
+            for (1 .. $date->[1] - 1) {
                 (undef, my $month, my $day) = Add_Delta_Days(
                     $year, split(/\./, $date->[0]), $_
                 );
@@ -447,13 +455,24 @@ sub _ymd {
 }
 
 1;
+
 __END__
+
+=pod
+
+=encoding UTF-8
 
 =head1 NAME
 
 Date::Baha::i - Convert to and from Baha'i dates
 
+=head1 VERSION
+
+version 0.1903
+
 =head1 SYNOPSIS
+
+  perl -MDate::Baha::i -le'print scalar from_bahai(epoch=>time)'
 
   use Date::Baha'i;
 
@@ -501,115 +520,10 @@ This package renders the Baha'i date from two standard date formats -
 epoch time and a (year, month, day) triple.  It also converts a Baha'i 
 date to standard ymd format.
 
-The following are excerpts from the L</SEE ALSO> section
-
-=head2 EXCERPT 1
-
-This calendar was instituted by the Baha'i spiritual leader 
-Baha'u'llah, who stated that it should begin in the Gregorian year 
-1844 at the (northern) Spring equinox, which is the traditional 
-Iranian New Year. According to calendars rules, the year begins at the
-sunset following the equinox, but up to now the practice in the West 
-has been to start the year at sunset on 20 March. This is usually 
-shown as 21 March, with the understanding that the day begins on the 
-evening before. In the Middle East, Baha'is start the year at the 
-sunset in Tehran following the equinox, and the Baha'i Universal House
-of Justice has not yet decided on the rules of the calendar to be used
-by all (Reingold and Dershowitz: Calendrical Calculations 2001). For 
-now, I present the calendar as used in the West.
-
-Baha'u'llah proclaimed the fulfillment of all religions and the unity 
-of humankind, and the calendar is designed to be a world calendar, 
-(relatively) free of cultural baggage. It is an entirely solar 
-calendar, without even the vestige of previously lunar months as in 
-the Gregorian Calendar.
-
-=head2 EXCERPT 2
-
-The Baha'i year is based on the solar year of 365 days, five hours and
-some fifty minutes. Each year is divided into nineteen months of 
-nineteen days each with four Intercalary Days (five in a leap year), 
-called Ayyam-i-Ha which Baha'u'llah specified should precede the 
-nineteenth month.
-
-=head2 EXCERPT 3
-
-The number nineteen has a special significance for Baha'is.  It was 
-common in Persian mystical writings to utilize a system of numerical 
-values to convey meanings beyond what mere words could impart.
-Within this system, words are assigned numerical values, and 
-relationships between words can be implied based upon these values. 
-The word "vahid", meaning unity, has the numerical value of nineteen,
-and is often used by the Bab and Baha'u'llah when specifying the 
-quantity nineteen.  So the number nineteen, in addition to being a 
-quantity, also is evocative of the central teaching of the Baha'i 
-Faith: unity.  It forms the basis not only of the calendar, but also 
-was integral to the structure of the Persian Bayan (the Bab's Book of 
-laws); is found in Baha'u'llah's laws concerning dowries, the payment 
-of Huquq'u'llah, certain fines, and various prayers; and is even seen 
-in the history of the Faith, as Baha'u'llah's public declaration of 
-His mission took place nineteen years after the Bab's declaration.
-
-Finally, for those who like to go into excruciating detail, the Bab 
-also spoke of time periods longer than a year.  He grouped years into 
-"Vahids" of nineteen years each, and gave each Vahid a name.  (It is 
-here that the word "Badi" appears, as the name of the sixteenth year 
-in the cycle.)  He further grouped the Vahids themselves into sets of 
-nineteen to create a time period called a "Kull-i-Shay" (literally, 
-"all things").  One Kull-i-Shay is therefore 361 years.
-
-=head2 DAY NAMES
-
-The days of the Baha'i week are:
-
-  1. Jalal    - Glory (Saturday)
-  2. Jamal    - Beauty (Sunday)
-  3. Kaml     - Perfection (Monday)
-  4. Fidal    - Grace (Tuesday)
-  5. 'Idal    - Justice (Wednesday)
-  6. Istijlal - Majesty (Thursday)
-  7. Istiqlal - Independence (Friday)
-
-The Baha'i day of rest is Isiqlal (Friday) and the Baha'i day begins 
-and ends at sunset.
-
-=head2 MONTH NAMES
-
-The names of the months in the Baha'i (Badi) calendar were given by 
-the Bab, who drew them from the nineteen names of God invoked in a 
-prayer said during the month of fasting in Shi'ih Islam. They are:
-
-  1.  Baha       - Splendour (21 March - 8 April)
-  2.  Jalal      - Glory (9 April - 27 April)
-  3.  Jamal      - Beauty (28 April - 16 May)
-  4.  'Azamat    - Grandeur (17 May - 4 June)
-  5.  Nur        - Light (5 June - 23 June)
-  6.  Rahmat     - Mercy (24 June - 12 July)
-  7.  Kalimat    - Words (13 July - 31 July)
-  8.  Kamal      - Perfection (1 August - 19 August)
-  9.  Asma'      - Names (20 August - 7 September)
-  10. 'Izzat     - Might (8 September - 26 September)
-  11. Mashiyyat  - Will (27 September - 15 October)
-  12. 'Ilm       - Knowledge (16 October - 3 November)
-  13. Qudrat     - Power (4 November - 22 November)
-  14. Qawl       - Speech (23 November - 11 December)
-  15. Masa'il    - Questions (12 December - 30 December)
-  16. Sharaf     - Honour (31 December - 18 January)
-  17. Sultan     - Sovereignty (19 January - 6 February)
-  18. Mulk       - Dominion (7 February - 25 February)
-  *   Ayyam-i-Ha - Days of Ha (26 February - 1 March))
-  19. 'Ala       - Loftiness (2 March - 20 March)
-
-=head2 AYYAM-I-HA
-
-Literally, Days of Ha (i.e. the letter Ha, which in the abjad system 
-has the numerical value of 5). Intercalary Days. The four days (five 
-in a leap year) before the last month of the Baha'a year, "Ala."
-
 =head2 CYCLES
 
-Each cycle of nineteen years is called a Vahid. Nineteen cycles 
-constitute a period called Kull-i-Shay.
+Each cycle of nineteen years is called a Vahid.  Nineteen cycles constitute a
+period called Kull-i-Shay.
 
 The names of the years in each cycle are: 
 
@@ -633,77 +547,91 @@ The names of the years in each cycle are:
   18. Abha   - Most Luminous
   19. Vahid  - Unity
 
+=head2 MONTH NAMES
+
+The names of the months in the Baha'i (Badi) calendar were given by the Bab, who
+drew them from the nineteen names of God invoked in a prayer said during the
+month of fasting in Shi'ih Islam. They are:
+
+  1.  Baha       - Splendour (21 March - 8 April)
+  2.  Jalal      - Glory (9 April - 27 April)
+  3.  Jamal      - Beauty (28 April - 16 May)
+  4.  'Azamat    - Grandeur (17 May - 4 June)
+  5.  Nur        - Light (5 June - 23 June)
+  6.  Rahmat     - Mercy (24 June - 12 July)
+  7.  Kalimat    - Words (13 July - 31 July)
+  8.  Kamal      - Perfection (1 August - 19 August)
+  9.  Asma'      - Names (20 August - 7 September)
+  10. 'Izzat     - Might (8 September - 26 September)
+  11. Mashiyyat  - Will (27 September - 15 October)
+  12. 'Ilm       - Knowledge (16 October - 3 November)
+  13. Qudrat     - Power (4 November - 22 November)
+  14. Qawl       - Speech (23 November - 11 December)
+  15. Masa'il    - Questions (12 December - 30 December)
+  16. Sharaf     - Honour (31 December - 18 January)
+  17. Sultan     - Sovereignty (19 January - 6 February)
+  18. Mulk       - Dominion (7 February - 25 February)
+  * Ayyam-i-Ha   - Days of Ha (26 February - 1 March))
+  19. 'Ala       - Loftiness (2 March - 20 March)
+
+=head3 AYYAM-I-HA
+
+Intercalary Days: Four (or five) days in a leap year, before the last month.
+
+=head2 DAY NAMES
+
+The days of the Baha'i week are:
+  1. Jalal    - Glory (Saturday)
+  2. Jamal    - Beauty (Sunday)
+  3. Kaml     - Perfection (Monday)
+  4. Fidal    - Grace (Tuesday)
+  5. 'Idal    - Justice (Wednesday)
+  6. Istijlal - Majesty (Thursday)
+  7. Istiqlal - Independence (Friday)
+
+The Baha'i day of rest is Isiqlal (Friday) and the Baha'i day begins and ends at
+sunset.
+
 =head2 HOLY DAYS
 
-There are eleven Holy Days which Baha'is celebrate.
+There are 11 Holy Days:
 
-* Naw Ruz - (Generally) March 21
+* Naw Ruz - The Spring Equinox
 
-Literally, New Day. The Baha'i New Year. Like the ancient Persian New 
-Year, it occurs on the Spring equinox, which generally falls on 21 
-March. If the equinox falls after sunset on 21 March, Naw Ruz is 
-celebrated on 22 March, since the Baha'i day begins at sunset. For the
-present, however, the celebration of Naw Ruz is fixed on 21 March. In 
-the Baha'i calandar, Naw Ruz falls on the day of Baha of the month of 
-Baha. The Festival of Naw Ruz marks the end of the month of fasting 
-and is a joyous time of celebration. It is a Baha'i Holy Day on which 
-work is to be suspended.
+Generally March 21.
 
-* Ridvan
+If the equinox falls after sunset on 21 March, Naw Ruz is observed on 22 March,
+since the Baha'i day begins at sunset.
 
-First day - 21 April; Ninth day - 29 April; Twelfth (last) day - 2 May
+* Ridvan - Declaration of Baha'u'llah in 1863
 
-The Ridvan (pronouced "riz-wan") festival commemorates the first 
-public declaration by Baha'u'llah of His Station and mission (in 
-1863).
+   1st day - 21 April
+   9th day - 29 April
+  12th day -  2 May
 
-* Declaration of the Bab - 23 May
+* Declaration of the Bab - 23 May, 1844
 
-Commemorates the date in 1844 when the Bab first declared His Mission.
+* Ascension of Baha'u'llah - 29 May, 1892
 
-* Ascension of Baha'u'llah - 29 May
+* Martyrdom of the Bab - 9 July, 1850
 
-Commemorates the date in 1892 when Baha'u'llah passed away.
+* Birth of the Bab - 20 October, 1819
 
-* Martyrdom of the Bab - 9 July
+* Birth of Baha'u'llah - 12 November, 1817
 
-Commemorates the date in 1850 when the Bab was executed in Tabriz,
-Iran.
+* Ascension of 'Abdu'l-Baha - 28 November, 1921
 
-* Birth of the Bab - 20 October
+* Ayyam-i-Ha (the Intercalary Days) 26 February to 1 March
 
-Commemorates the date in 1819 when the Bab was born in Shiraz, Iran.
+* The Fast - 2-20 March in the month 'Ala - 19 days from sunrise to sunset
 
-* Birth of Baha'u'llah - 12 November
+=head1 NAME
 
-Commemorates the date in 1817 when Baha'u'llah was born in Tihran, 
-Iran.
+Date::Baha::i - Convert to and from Baha'i dates
 
-- Work does not have to cease on these Holy Days:
+=head1 FUNCTIONS
 
-* Day of the Covenant - 26 November
-
-This day is celebrated in lieu of the Birth of 'Abdu'l-Baha, which 
-falls on the same day as the Declaration of the Bab.
-
-* Ascension of 'Abdu'l-Baha - 28 November
-
-Commemorates the day in 1921 when 'Abdu'l-Baha passed away.
-
-* Ayyam-i-Ha (the Intercalary Days) 26 February - 1 March
-
-The Baha'i calendar is made up of 19 months of 19 days each. The 
-period of Ayyam-i-Ha adjusts the Baha'i year to the solar cycle. These
-days are set aside for hospitality, gift-giving, special acts of 
-charity, and preparing for the Baha'i Fast.
-
-* The Fast - 'Ala - Loftiness (month 19) / 2-20 March
-
-Baha'is fast for 19 days from sunrise to sunset.
-
-=head1 EXPORT
-
-=head2 to_bahai
+=head2 to_bahai()
 
   # Return a string in scalar context.
   $bahai_date = to_bahai();
@@ -733,20 +661,18 @@ Baha'is fast for 19 days from sunrise to sunset.
       %args,
   );
 
-This function returns either a string or a hash of the Baha'i date 
-names and numbers from either epoch seconds or a year, month, day 
-triple.
+This function returns either a string or a hash of the date names and numbers
+from either epoch seconds, or a year, month, day named parameter triple.
 
-If using epoch seconds, this function can be forced to use gmtime 
-instead of localtime.  If neither a epoch or ymd triple are given, 
-the system localtime (or gmtime) are used as a default.
+If using epoch seconds, this function can be forced to use gmtime instead of
+localtime.  If neither a epoch or a ymd triple are given, the system localtime
+is used as the default.
 
-The extra arguments are most handy, and used by the as_string 
-function, detailed below.
+The extra, optional arguments are used by the as_string function, detailed
+below.
 
-In a scalar context, this function returns a string sentence with the 
-numeric and/or named Baha'i date.  In an array context, it returns a 
-hash with the following keys:
+In a scalar context, this function returns a string sentence with the numeric or
+named date.  In an array context, it returns a hash with the following keys:
 
   kull_i_shay,
   cycle, cycle_name, cycle_year,
@@ -756,7 +682,7 @@ hash with the following keys:
   dow, dow_name and
   holy_day (if there is one)
 
-=head2 from_bahai
+=head2 from_bahai()
 
   # Return a y/m/d string in scalar context.
   $date = from_bahai(
@@ -772,12 +698,12 @@ hash with the following keys:
       day   => $bahai_day,
   );
 
-This function returns either a string or a list of the standard date 
-from a year, month, day triple of the Baha'i date.
+This function returns either a string or a list of the given date.
 
-Currently, this only supports the Baha'i year, month and day.
+Currently, this supports the Baha'i year, month and day, but not the
+kull-i-shay, cycle, cycle name or cycle year.
 
-=head2 as_string
+=head2 as_string()
 
   $date = as_string(
       \%bahai_date,
@@ -788,37 +714,27 @@ Currently, this only supports the Baha'i year, month and day.
 
 Return the Baha'i date as a friendly string.
 
-This function takes a Baha'i date hash and Boolean arguments that 
-determine the format of the output.
+This function takes a Baha'i date hash and Boolean arguments that determine the
+format of the output.
 
-The "size" argument toggles between short and long representations.
-As the names imply, the "alpha" and "numeric" flags turn the 
-alphanumeric representations on or off.  The defaults are as follows:
+The "size" argument toggles between short and long representations.  As the
+names imply, the "alpha" and "numeric" flags turn the alphanumeric
+representations on or off.  The defaults are as follows:
 
-  alpha    => 1
-  numeric  => 0
-  size     => 1
+  alpha   => 1
+  numeric => 0
+  size    => 1
 
-Which mean that "long non-numeric alpha" is the default representation.
+(Which mean that "long non-numeric alpha" is the default representation.)
 
 Here are some handy examples (newlines added for readability):
 
   short numeric:
   1/1/159
 
-  short numeric:
-  1/1/159
-
   long numeric:
   7th day of the week, 1st day of the 1st month, year 159,
   7th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz
-
-  long numeric:
-  7th day of the week, 1st day of the 1st month, year 159,
-  7th year of the 9th vahid of the 1st kull-i-shay, holy day: Naw Ruz
-
-  short alpha:
-  Istiqlal, Baha of Baha, Abad of Baha
 
   short alpha
   Istiqlal, Baha of Baha, Abad of Baha
@@ -828,14 +744,6 @@ Here are some handy examples (newlines added for readability):
   year one hundred fifty nine of year Abad of the vahid Baha of the
   1st kull-i-shay, holy day: Naw Ruz
 
-  long alpha:
-  week day Istiqlal, day Baha of month Baha,
-  year one hundred fifty nine of year Abad of the vahid Baha of the
-  1st kull-i-shay, holy day: Naw Ruz
-
-  short alpha-numeric:
-  Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9)
-
   short alpha-numeric:
   Istiqlal (7), Baha (1) of Baha (1), year 159, Abad (7) of Baha (9)
 
@@ -844,58 +752,54 @@ Here are some handy examples (newlines added for readability):
   year one hundred and fifty nine (159), 7th year Abad of the
   9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
 
-  long alpha-numeric:
-  7th week day Istiqlal, 1st day Baha of the 1st month Baha,
-  year one hundred and fifty nine (159), 7th year Abad of the
-  9th vahid Baha of the 1st kull-i-shay, holy day: Naw Ruz
-
-=head2 next_holy_day
+=head2 next_holy_day()
 
   $d = next_holy_day();
   $d = next_holy_day($year, $month, $day);
 
-This function returns the name of the first holy day after the 
-provided date triple.
+Return the name of the first holy day after the provided date.
 
-=head2 cycles
+=head2 cycles()
 
   @c = cycles();
 
-This function returns the 19 cycle names as an array.
+Return the 19 cycle names as an array.
 
-=head2 years
+=head2 years()
 
   @y = years();
 
-This function returns the 19 year names as an array.
+Return the 19 year names as an array.
 
-=head2 months
+=head2 months()
 
   @m = months();
 
-This function returns the 19 month names as an array, along with the 
-intercalary days (Ayyam-i-Ha) as the last element.
+Return the 19 month names as an array, along with the intercalary days as the
+last element.
 
-=head2 days
+=head2 days()
 
   @d = days();
 
-This function returns the 19 day names as an array.
+Return the 19 day names as an array.
 
-=head2 days_of_the_week
+=head2 days_of_the_week()
 
   @d = days_of_the_week();
 
-This function returns the seven day-of-the-week names as an array.
+Return the seven day-of-the-week names as an array.
 
-=head2 holy_days
+=head2 holy_days()
 
   %d = holy_days();
 
-This function returns the a hash, where the keys are the Holy Day
-names and the values are array references, of either two or three
-elements: month, day and the (optional) number of days observed.
-These dates are given in standard (non-Baha'i) format.
+Return a hash with keys of the Holy Day names and values of the date or range.
+
+These values are array references of either two or three elements:
+B<month>, B<day> and the (optional) number of B<days observed>.
+
+Dates are given in common, standard (non-Baha'i) format.
 
 =head1 SEE ALSO
 
@@ -905,22 +809,17 @@ L<Lingua::EN::Numbers>
 
 L<Lingua::EN::Numbers::Years>
 
-L<http://www.projectpluto.com/calendar.htm#bahai> (Very interesting)
-
-The following are partially quoted above:
-
-L<http://www.planetbahai.org/articles/2003/ar032103a.html>
-
-L<http://www.bahaindex.com/calendar.html>
+L<http://www.projectpluto.com/calendar.htm#bahai>
 
 L<http://www.moonwise.co.uk/year/160bahai.htm>
 
 =head1 TO DO
 
-Base the date computation on the time of day (the Baha'i day begins at 
-sunset) with L<Astro::Sunrise>.
+Re-create the missing 01-as_string.t, 03-misc.t & 04-to_bahai.t tests!
 
-Make this a L<DateTime> module...
+Base the date computation on the time of day (Baha'i day begins at sunset).
+
+Make this a L<DateTime> module.
 
 Support cycles and Kull-i-Shay.
 
@@ -928,18 +827,13 @@ Overload localtime and gmtime, just to be cool?
 
 =head1 AUTHOR
 
-Gene Boggs, C<< <gene at cpan.org> >>
+Gene Boggs <gene@cpan.org>
 
-=head1 LICENSE AND COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
-Copyright 2003-2010 Gene Boggs.
+This software is copyright (c) 2013 by Gene Boggs.
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of either: the GNU General Public License as published
-by the Free Software Foundation; or the Artistic License.
-
-See http://dev.perl.org/licenses/ for more information.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-1; # End of Date::Baha::i
